@@ -5,7 +5,7 @@ module AttrVault
   class Key
     attr_reader :id, :value, :created_at
 
-    def initialize(id, value, created_at=Time.now)
+    def initialize(id, value, created_at)
       if id.nil?
         raise InvalidKey, "key id required"
       end
@@ -15,15 +15,11 @@ module AttrVault
 
       @id = id
       @value = value
-      @created_at = if created_at.is_a? String
-                      Time.parse(created_at)
-                    else
-                      created_at
-                    end
+      @created_at = created_at
     end
 
     def to_json
-      { id: id, value: value, created_at: created_at }
+      { id: id, value: value, created_at: created_at }.to_json
     end
   end
 
@@ -38,7 +34,10 @@ module AttrVault
           raise InvalidKeyring, "does not respond to each_with_index"
         end
         candidate_keys.each_with_index do |k, i|
-          keyring.add_key(Key.new(k["id"], k["value"], k["created_at"]))
+          created_at = unless k["created_at"].nil?
+                         Time.parse(k["created_at"])
+                       end
+          keyring.add_key(Key.new(k["id"], k["value"], created_at || Time.now))
         end
       rescue StandardError => e
         raise InvalidKeyring, e.message
