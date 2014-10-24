@@ -18,7 +18,7 @@ module AttrVault
       @created_at = created_at
     end
 
-    def to_json
+    def to_json(*args)
       { id: id, value: value, created_at: created_at }.to_json
     end
   end
@@ -67,8 +67,7 @@ module AttrVault
     end
 
     def to_json
-      # TODO: this is kind of gross
-      "[#{@keys.map(&:to_json).join(',')}]"
+      @keys.to_json
     end
   end
 end
