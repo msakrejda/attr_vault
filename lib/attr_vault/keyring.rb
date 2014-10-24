@@ -67,7 +67,8 @@ module AttrVault
     end
 
     def to_json
-      @keys.to_json
+      # TODO: this is kind of gross
+      "[#{@keys.map(&:to_json).join(',')}]"
     end
   end
 end

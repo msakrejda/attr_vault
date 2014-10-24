@@ -116,6 +116,28 @@ module AttrVault
       expect(keyring.keys.count).to eq 1
       expect(keyring.keys[0]).to be k2
     end
+  end
 
+  describe "#to_json" do
+    let(:keyring) { Keyring.new }
+    let(:k1)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+    let(:k2)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+
+    before do
+      keyring.add_key(k1)
+      keyring.add_key(k2)
+    end
+
+    it "serializes the keyring to an expected format" do
+      keyring_data = keyring.to_json
+      reparsed = JSON.parse(keyring_data)
+      expect(reparsed[0]["id"]).to eq k1.id
+      expect(reparsed[0]["value"]).to eq k1.value
+      expect(reparsed[0]["created_at"]).to eq k1.created_at.to_s
+
+      expect(reparsed[1]["id"]).to eq k2.id
+      expect(reparsed[1]["value"]).to eq k2.value
+      expect(reparsed[1]["created_at"]).to eq k2.created_at.to_s
+    end
   end
 end
