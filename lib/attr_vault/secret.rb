@@ -6,8 +6,6 @@ module AttrVault
   # Internal: Encapsulates a secret key, a 32-byte sequence consisting
   #   of an encryption and a signing key.
   class Secret
-    class InvalidSecret < AttrVault::Error; end
-
     # Internal - Initialize a Secret
     #
     # secret - the secret, optionally encoded with either standard or

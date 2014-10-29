@@ -1,6 +1,7 @@
 module AttrVault
   # Base class for AttrVault errors
   class Error < StandardError; end
+  class InvalidSecret < AttrVault::Error; end
   class InvalidKey < AttrVault::Error; end
   class InvalidKeyring < AttrVault::Error; end
   class KeyringEmpty < AttrVault::Error; end
