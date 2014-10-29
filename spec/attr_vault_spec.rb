@@ -103,9 +103,6 @@ describe AttrVault do
         created_at: Time.now }].to_json
     }
     let(:item)   {
-      # the let form can't be evaluated inside the class definition
-      # because Ruby scoping rules were written by H.P. Lovecraft, so
-      # we create a local here to work around that
       k = key_data
       Class.new(Sequel::Model(:items)) do
         include AttrVault
@@ -128,7 +125,7 @@ describe AttrVault do
     end
   end
 
-  context "renaming database fields" do
+  context "with renamed database fields" do
     let(:key_data) {
       [{
         id: '80a8571b-dc8a-44da-9b89-caee87e41ce2',
