@@ -227,6 +227,60 @@ describe AttrVault do
     end
   end
 
+  context "with plaintext source fields" do
+    let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
+    let(:key_data) {
+      [{
+        id: key_id,
+        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+        created_at: Time.now }].to_json
+    }
+    let(:item1) {
+      k = key_data
+      Class.new(Sequel::Model(:items)) do
+        include AttrVault
+        vault_keyring k
+        vault_attr :secret
+        vault_attr :other
+      end
+    }
+    let(:item2) {
+      k = key_data
+      Class.new(Sequel::Model(:items)) do
+        include AttrVault
+        vault_keyring k
+        vault_attr :secret, plaintext_source_field: :not_secret
+        vault_attr :other, plaintext_source_field: :other_not_secret
+      end
+    }
+
+    it "copies a plaintext field to an encrypted field when saving the object" do
+      becomes_secret = 'the location of the lost continent of atlantis'
+      s = item1.create(not_secret: becomes_secret)
+      reloaded = item2[s.id]
+      expect(reloaded.not_secret).to eq becomes_secret
+      reloaded.save
+      reloaded.reload
+      expect(reloaded.not_secret).to be_nil
+      expect(reloaded.secret).to eq becomes_secret
+    end
+
+    it "supports converting multiple fields" do
+      becomes_secret1 = 'the location of the fountain of youth'
+      becomes_secret2 = 'the location of the lost city of el dorado'
+      s = item1.create(not_secret: becomes_secret1, other_not_secret: becomes_secret2)
+      reloaded = item2[s.id]
+      expect(reloaded.not_secret).to eq becomes_secret1
+      expect(reloaded.other_not_secret).to eq becomes_secret2
+      reloaded.save
+      reloaded.reload
+      expect(reloaded.not_secret).to be_nil
+      expect(reloaded.secret).to eq becomes_secret1
+      expect(reloaded.other_not_secret).to be_nil
+      expect(reloaded.other).to eq becomes_secret2
+    end
+  end
+
   context "with renamed database fields" do
     let(:key_data) {
       [{

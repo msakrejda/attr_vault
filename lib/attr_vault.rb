@@ -31,11 +31,27 @@ module AttrVault
           @vault_dirty_attrs[attr.name] = self.send(attr.name)
         end
       end
+      # If any attr has plaintext_source_field and the plaintext field
+      # has a value set, flag the attr as dirty using the plaintext
+      # source value, then nil out the plaintext field.
+      self.class.vault_attrs.reject { |attr| attr.plaintext_source_field.nil? }.each do |attr|
+        unless self[attr.plaintext_source_field].nil?
+          @vault_dirty_attrs[attr.name] = self[attr.plaintext_source_field]
+          self[attr.plaintext_source_field] = nil
+        end
+      end
       self.class.vault_attrs.each do |attr|
         next unless @vault_dirty_attrs.has_key? attr.name
 
         value = @vault_dirty_attrs[attr.name]
         encrypted, hmac = Cryptor.encrypt(value, current_key.value)
+
+        unless encrypted.nil?
+          encrypted = Sequel.blob(encrypted)
+        end
+        unless hmac.nil?
+          hmac = Sequel.blob(hmac)
+        end
 
         self[attr.encrypted_field] = encrypted
         self[attr.hmac_field] = hmac
@@ -57,6 +73,12 @@ module AttrVault
       self.vault_attrs << attr
 
       define_method(name) do
+        # if there is a plaintext source field, use that and ignore
+        # the encrypted field
+        if !attr.plaintext_source_field.nil? && !self[attr.plaintext_source_field].nil?
+          return self[attr.plaintext_source_field]
+        end
+
         keyring = self.class.vault_keys
         key_id = self[self.class.vault_key_field]
         record_key = self.class.vault_keys.fetch(key_id)
@@ -92,14 +114,16 @@ module AttrVault
   end
 
   class VaultAttr
-    attr_reader :name, :encrypted_field, :hmac_field
+    attr_reader :name, :encrypted_field, :hmac_field, :plaintext_source_field
 
     def initialize(name,
                    encrypted_field: "#{name}_encrypted",
-                   hmac_field: "#{name}_hmac")
+                   hmac_field: "#{name}_hmac",
+                   plaintext_source_field: nil)
       @name = name
       @encrypted_field = encrypted_field.to_sym
       @hmac_field = hmac_field.to_sym
+      @plaintext_source_field = plaintext_source_field.to_sym unless plaintext_source_field.nil?
     end
   end
 end

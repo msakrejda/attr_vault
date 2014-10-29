@@ -23,7 +23,8 @@ conn.run <<-EOF
       secret_hmac bytea,
       other_encrypted bytea,
       other_hmac bytea,
-      not_secret text
+      not_secret text,
+      other_not_secret text
     )
   EOF
 
