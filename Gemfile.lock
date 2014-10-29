@@ -2,14 +2,11 @@ PATH
   remote: .
   specs:
     attr_vault (0.0.1)
-      fernet (~> 2.1)
 
 GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.2.5)
-    fernet (2.1)
-      valcro (= 0.1)
     pg (0.17.1)
     rspec (3.1.0)
       rspec-core (~> 3.1.0)
@@ -24,13 +21,12 @@ GEM
       rspec-support (~> 3.1.0)
     rspec-support (3.1.2)
     sequel (4.13.0)
-    valcro (0.1)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   attr_vault!
-  pg
+  pg (~> 0)
   rspec (~> 3.0)
-  sequel (~> 4.13.0)
+  sequel (~> 4.13)
