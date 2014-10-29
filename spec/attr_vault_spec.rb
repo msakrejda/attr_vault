@@ -95,6 +95,39 @@ describe AttrVault do
     end
   end
 
+  context "with multiple encrypted columns" do
+    let(:key_data) {
+      [{
+        id: '80a8571b-dc8a-44da-9b89-caee87e41ce2',
+        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+        created_at: Time.now }].to_json
+    }
+    let(:item)   {
+      # the let form can't be evaluated inside the class definition
+      # because Ruby scoping rules were written by H.P. Lovecraft, so
+      # we create a local here to work around that
+      k = key_data
+      Class.new(Sequel::Model(:items)) do
+        include AttrVault
+        vault_keyring k
+        vault_attr :secret
+        vault_attr :other
+      end
+    }
+
+    it "does not clobber other attributes" do
+      secret1 = "superman is really mild-mannered reporter clark kent"
+      secret2 = "batman is really millionaire playboy bruce wayne"
+      s = item.create(secret: secret1)
+      s.reload
+      expect(s.secret).to eq secret1
+      s.update(other: secret2)
+      s.reload
+      expect(s.secret).to eq secret1
+      expect(s.other).to eq secret2
+    end
+  end
+
   context "renaming database fields" do
     let(:key_data) {
       [{
