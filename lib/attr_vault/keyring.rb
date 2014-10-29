@@ -1,7 +1,4 @@
 module AttrVault
-  class InvalidKey < StandardError; end
-  class InvalidKeyring < StandardError; end
-
   class Key
     attr_reader :id, :value, :created_at
 
@@ -11,6 +8,9 @@ module AttrVault
       end
       if value.nil?
         raise InvalidKey, "key value required"
+      end
+      if created_at.nil?
+        raise InvalidKey, "key created_at required"
       end
 
       @id = id
@@ -30,10 +30,10 @@ module AttrVault
       keyring = Keyring.new
       begin
         candidate_keys = JSON.parse(keyring_data)
-        unless candidate_keys.respond_to? :each_with_index
-          raise InvalidKeyring, "does not respond to each_with_index"
+        unless candidate_keys.respond_to? :each
+          raise InvalidKeyring, "does not respond to each"
         end
-        candidate_keys.each_with_index do |k, i|
+        candidate_keys.each_with_index do |k|
           created_at = unless k["created_at"].nil?
                          Time.parse(k["created_at"])
                        end
@@ -62,8 +62,20 @@ module AttrVault
       @keys.reject! { |k| k.id == id }
     end
 
-    def [](id)
-      @keys.find { |k| k.id == id }
+    def fetch(id)
+      @keys.find { |k| k.id == id } or raise UnknownKey, id
+    end
+
+    def has_key?(id)
+      !@keys.find { |k| k.id == id }.nil?
+    end
+
+    def current_key
+      k = @keys.sort_by(&:created_at).last
+      if k.nil?
+        raise KeyringEmpty, "No keys in keyring"
+      end
+      k
     end
 
     def to_json

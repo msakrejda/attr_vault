@@ -18,4 +18,6 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency 'fernet', '~> 2.1'
 
   gem.add_development_dependency "rspec", '~> 3.0'
+  gem.add_development_dependency "pg"
+  gem.add_development_dependency "sequel", '~> 4.13.0'
 end

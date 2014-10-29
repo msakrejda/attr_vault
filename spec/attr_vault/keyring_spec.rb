@@ -62,7 +62,7 @@ module AttrVault
     end
   end
 
-  describe "#[]" do
+  describe "#fetch" do
     let(:keyring) { Keyring.new }
     let(:k1)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
     let(:k2)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
@@ -73,12 +73,33 @@ module AttrVault
     end
 
     it "finds the right key by its id" do
-      expect(keyring[k1.id]).to be k1
-      expect(keyring[k2.id]).to be k2
+      expect(keyring.fetch(k1.id)).to be k1
+      expect(keyring.fetch(k2.id)).to be k2
     end
 
-    it "returns nil for an unknown id" do
-      expect(keyring['867344d2-ac73-493b-9a9e-5fa688ba25ef']).to be_nil
+    it "raises for an unknown id" do
+      expect { keyring.fetch('867344d2-ac73-493b-9a9e-5fa688ba25ef') }
+        .to raise_error(UnknownKey)
+    end
+  end
+
+  describe "#has_key?" do
+    let(:keyring) { Keyring.new }
+    let(:k1)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+    let(:k2)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+
+    before do
+      keyring.add_key(k1)
+      keyring.add_key(k2)
+    end
+
+    it "is true if the keyring has a key with the given id" do
+      expect(keyring.has_key?(k1.id)).to be true
+      expect(keyring.has_key?(k2.id)).to be true
+    end
+
+    it "is false if no such key is present" do
+      expect(keyring.has_key?('867344d2-ac73-493b-9a9e-5fa688ba25ef')).to be false
     end
   end
 
@@ -138,6 +159,26 @@ module AttrVault
       expect(reparsed[1]["id"]).to eq k2.id
       expect(reparsed[1]["value"]).to eq k2.value
       expect(reparsed[1]["created_at"]).to eq k2.created_at.to_s
+    end
+  end
+
+  describe "#current_key" do
+    let(:keyring) { Keyring.new }
+    let(:k1)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now - 3) }
+    let(:k2)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+
+    before do
+      keyring.add_key(k1)
+      keyring.add_key(k2)
+    end
+
+    it "returns the newest key" do
+      expect(keyring.current_key).to eq k2
+    end
+
+    it "raise if no keys are registered" do
+      other_keyring = Keyring.new
+      expect { other_keyring.current_key }.to raise_error(KeyringEmpty)
     end
   end
 end
