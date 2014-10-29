@@ -42,6 +42,7 @@ module AttrVault
       end
       self[self.class.vault_key_field] = current_key.id
       @vault_dirty_attrs = {}
+      super
     end
   end
 
@@ -69,6 +70,11 @@ module AttrVault
       define_method("#{name}=") do |value|
         @vault_dirty_attrs ||= {}
         @vault_dirty_attrs[name] = value
+        # ensure that Sequel knows that this is in fact dirty and must
+        # be updated--otherwise, the object is never saved,
+        # #before_save is never called, and we never store the update
+        self.modified! attr.encrypted_field
+        self.modified! attr.hmac_field
       end
     end
 

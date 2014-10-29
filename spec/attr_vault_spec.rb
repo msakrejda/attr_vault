@@ -39,6 +39,60 @@ describe AttrVault do
           expect(s.this.where(Sequel.cast(Sequel.cast(col, :text), :bytea) => secret).count).to eq 0
         end
       end
+
+      it "stores empty values as empty" do
+        secret = ''
+        s = item.create(secret: secret)
+        s.reload
+        expect(s.secret).to eq('')
+        expect(s.secret_encrypted).to eq('')
+      end
+
+      it "stores nil values as nil" do
+        s = item.create(secret: nil)
+        s.reload
+        expect(s.secret).to be_nil
+        expect(s.secret_encrypted).to be_nil
+      end
+    end
+
+    context "with an existing object" do
+      it "does not affect other attributes" do
+        not_secret = 'soylent is not especially tasty'
+        s = item.create
+        s.update(not_secret: not_secret)
+        s.reload
+        expect(s.not_secret).to eq(not_secret)
+        expect(s.this.where(not_secret: not_secret).count).to eq 1
+      end
+
+      it "encrypts non-empty values" do
+        secret = 'soylent green is made of people'
+        s = item.create
+        s.update(secret: secret)
+        s.reload
+        expect(s.secret).to eq(secret)
+        s.columns.each do |col|
+          expect(s.this.where(Sequel.cast(Sequel.cast(col, :text), :bytea) => secret).count).to eq 0
+        end
+      end
+
+      it "stores empty values as empty" do
+        s = item.create(secret: "darth vader is luke's father")
+        s.update(secret: '')
+        s.reload
+        expect(s.secret).to eq('')
+        expect(s.secret_encrypted).to eq('')
+      end
+
+      it "leaves nil values as nil" do
+        s = item.create(secret: "dr. crowe was dead all along")
+        s.update(secret: nil)
+        s.reload
+        expect(s.secret).to be_nil
+        expect(s.secret_encrypted).to be_nil
+      end
+
     end
   end
 end
