@@ -81,6 +81,11 @@ module AttrVault
 
         keyring = self.class.vault_keys
         key_id = self[self.class.vault_key_field]
+        if key_id.nil?
+          # if there is no recorded key, this is not an encrypted
+          # record so we return nil
+          return nil
+        end
         record_key = self.class.vault_keys.fetch(key_id)
 
         encrypted_value = self[attr.encrypted_field]

@@ -108,6 +108,11 @@ describe AttrVault do
         s.reload
         expect(s.key_id).to eq(key_id)
       end
+
+      it "reads a never-set encrypted field as nil" do
+        s = item.create
+        expect(s.secret).to be_nil
+      end
     end
   end
 
