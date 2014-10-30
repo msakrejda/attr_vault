@@ -73,6 +73,7 @@ module AttrVault
       self.vault_attrs << attr
 
       define_method(name) do
+        @vault_dirty_attrs ||= {}
         if @vault_dirty_attrs.has_key? name
           return @vault_dirty_attrs[name]
         end
