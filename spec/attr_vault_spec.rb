@@ -205,7 +205,6 @@ describe AttrVault do
       expect(record.secret).to eq secret1
 
       old_secret_encrypted = record.secret_encrypted
-      old_secret_hmac = record.secret_hmac
 
       new_key_record = item2[record.id]
       new_key_record.update(secret: secret2)
@@ -214,7 +213,6 @@ describe AttrVault do
       expect(new_key_record.key_id).to eq key2_id
       expect(new_key_record.secret).to eq secret2
       expect(new_key_record.secret_encrypted).not_to eq old_secret_encrypted
-      expect(new_key_record.secret_hmac).not_to eq old_secret_hmac
     end
 
     it "rewrites the items using the current key even if they are not updated" do
@@ -225,7 +223,6 @@ describe AttrVault do
       expect(record.secret).to eq secret1
 
       old_secret_encrypted = record.secret_encrypted
-      old_secret_hmac = record.secret_hmac
 
       new_key_record = item2[record.id]
       new_key_record.update(other: secret2)
@@ -234,7 +231,6 @@ describe AttrVault do
       expect(new_key_record.key_id).to eq key2_id
       expect(new_key_record.secret).to eq secret1
       expect(new_key_record.secret_encrypted).not_to eq old_secret_encrypted
-      expect(new_key_record.secret_hmac).not_to eq old_secret_hmac
       expect(new_key_record.other).to eq secret2
     end
   end
@@ -301,14 +297,13 @@ describe AttrVault do
         created_at: Time.now }].to_json
     }
 
-    it "supports renaming the encrypted and hmac fields" do
+    it "supports renaming the encrypted field" do
       k = key_data
       item = Class.new(Sequel::Model(:items)) do
         include AttrVault
         vault_keyring k
         vault_attr :classified_info,
-          encrypted_field: :secret_encrypted,
-          hmac_field: :secret_hmac
+          encrypted_field: :secret_encrypted
       end
 
       secret = "we've secretly replaced the fine coffee they usually serve with Folgers Crystals"
@@ -316,7 +311,6 @@ describe AttrVault do
       s.reload
       expect(s.classified_info).to eq secret
       expect(s.secret_encrypted).not_to eq secret
-      expect(s.secret_hmac).not_to be_nil
     end
 
     it "supports renaming the key id field" do
@@ -332,7 +326,6 @@ describe AttrVault do
       s.reload
       expect(s.secret).to eq secret
       expect(s.secret_encrypted).not_to eq secret
-      expect(s.secret_hmac).not_to be_nil
       expect(s.alt_key_id).not_to be_nil
       expect(s.key_id).to be_nil
     end
