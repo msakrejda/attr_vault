@@ -330,4 +330,52 @@ describe AttrVault do
       expect(s.key_id).to be_nil
     end
   end
+
+  context "with a digest field" do
+    let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
+    let(:key_data) {
+      [{
+        id: key_id,
+        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+        created_at: Time.now }].to_json
+    }
+    let(:item)   {
+      # the let form can't be evaluated inside the class definition
+      # because Ruby scoping rules were written by H.P. Lovecraft, so
+      # we create a local here to work around that
+      k = key_data
+      Class.new(Sequel::Model(:items)) do
+        include AttrVault
+        vault_keyring k
+        vault_attr :secret, digest_field: :secret_digest
+        vault_attr :other, digest_field: :other_digest
+      end
+    }
+
+    it "records the sha1 of the plaintext value" do
+      secret = 'snape kills dumbledore'
+      s = item.create(secret: secret)
+      expect(s.secret_digest).to eq(Digest::SHA1.hexdigest(secret))
+    end
+
+    it "can record multiple digest fields" do
+      secret = 'joffrey kills ned'
+      other_secret = '"gomer pyle" lawrence kills himself'
+      s = item.create(secret: secret, other: other_secret)
+      expect(s.secret_digest).to eq(Digest::SHA1.hexdigest(secret))
+      expect(s.other_digest).to eq(Digest::SHA1.hexdigest(other_secret))
+    end
+
+    it "records the digest for an empty field" do
+      s = item.create(secret: '', other: '')
+      expect(s.secret_digest).to eq(Digest::SHA1.hexdigest(''))
+      expect(s.other_digest).to eq(Digest::SHA1.hexdigest(''))
+    end
+
+    it "records the digest of a nil field" do
+      s = item.create
+      expect(s.secret_digest).to be_nil
+      expect(s.other_digest).to be_nil
+    end
+  end
 end

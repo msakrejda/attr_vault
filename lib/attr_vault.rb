@@ -3,6 +3,7 @@ require 'attr_vault/keyring'
 require 'attr_vault/secret'
 require 'attr_vault/encryption'
 require 'attr_vault/cryptor'
+require 'digest/sha1'
 
 module AttrVault
   def self.included(base)
@@ -47,6 +48,13 @@ module AttrVault
         encrypted = Cryptor.encrypt(value, current_key.value)
 
         self[attr.encrypted_field] = encrypted
+        unless attr.digest_field.nil?
+          if value.nil?
+            self[attr.digest_field] = nil
+          else
+            self[attr.digest_field] = Digest::SHA1.hexdigest(value)
+          end
+        end
       end
       self[self.class.vault_key_field] = current_key.id
       @vault_dirty_attrs = {}
@@ -96,6 +104,9 @@ module AttrVault
         # be updated--otherwise, the object is never saved,
         # #before_save is never called, and we never store the update
         self.modified! attr.encrypted_field
+        unless attr.digest_field.nil?
+          self.modified! attr.digest_field
+        end
       end
     end
 
@@ -113,14 +124,16 @@ module AttrVault
   end
 
   class VaultAttr
-    attr_reader :name, :encrypted_field, :plaintext_source_field
+    attr_reader :name, :encrypted_field, :plaintext_source_field, :digest_field
 
     def initialize(name,
                    encrypted_field: "#{name}_encrypted",
-                   plaintext_source_field: nil)
+                   plaintext_source_field: nil,
+                   digest_field: nil)
       @name = name
       @encrypted_field = encrypted_field.to_sym
       @plaintext_source_field = plaintext_source_field.to_sym unless plaintext_source_field.nil?
+      @digest_field = digest_field.to_sym unless digest_field.nil?
     end
   end
 end
