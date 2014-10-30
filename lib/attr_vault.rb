@@ -73,6 +73,9 @@ module AttrVault
       self.vault_attrs << attr
 
       define_method(name) do
+        if @vault_dirty_attrs.has_key? name
+          return @vault_dirty_attrs[name]
+        end
         # if there is a plaintext source field, use that and ignore
         # the encrypted field
         if !attr.plaintext_source_field.nil? && !self[attr.plaintext_source_field].nil?

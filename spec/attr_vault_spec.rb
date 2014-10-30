@@ -113,6 +113,13 @@ describe AttrVault do
         s = item.create
         expect(s.secret).to be_nil
       end
+
+      it "reads the correct value for a dirty field before the object is saved" do
+        s = item.create
+        secret = 'mcmurphy is lobotomized =('
+        s.secret = secret
+        expect(s.secret).to eq secret
+      end
     end
   end
 
