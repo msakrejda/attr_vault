@@ -34,10 +34,11 @@ module AttrVault
       end
       # If any attr has plaintext_source_field and the plaintext field
       # has a value set, flag the attr as dirty using the plaintext
-      # source value, then nil out the plaintext field.
+      # source value, then nil out the plaintext field. Skip any
+      # attributes that are already dirty.
       self.class.vault_attrs.reject { |attr| attr.plaintext_source_field.nil? }.each do |attr|
         unless self[attr.plaintext_source_field].nil?
-          @vault_dirty_attrs[attr.name] = self[attr.plaintext_source_field]
+          @vault_dirty_attrs[attr.name] ||= self[attr.plaintext_source_field]
           self[attr.plaintext_source_field] = nil
         end
       end
