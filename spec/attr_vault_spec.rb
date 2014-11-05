@@ -287,6 +287,19 @@ describe AttrVault do
       expect(reloaded.other_not_secret).to be_nil
       expect(reloaded.other).to eq becomes_secret2
     end
+
+    it "nils out the plaintext field and persists the encrypted field on save" do
+      becomes_secret = 'the location of all those socks that disappear from the dryer'
+      new_secret = 'the location of pliny the younger drafts'
+      s = item1.create(not_secret: becomes_secret)
+      reloaded = item2[s.id]
+      expect(reloaded.secret).to eq(becomes_secret)
+      reloaded.secret = new_secret
+      expect(reloaded.secret).to eq(new_secret)
+      reloaded.save
+      expect(reloaded.secret).to eq(new_secret)
+      expect(reloaded.not_secret).to be_nil
+    end
   end
 
   context "with renamed database fields" do
