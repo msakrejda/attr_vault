@@ -28,8 +28,7 @@ module AttrVault
         # they're set explicitly in a new record, in which case they
         # will be in the dirty attrs already and are handled below.
         self.class.vault_attrs.each do |attr|
-          next if @vault_dirty_attrs.has_key? attr.name
-          @vault_dirty_attrs[attr.name] = self.send(attr.name)
+          @vault_dirty_attrs[attr.name] ||= self.send(attr.name)
         end
       end
       # If any attr has plaintext_source_field and the plaintext field
