@@ -1,3 +1,5 @@
+require 'base64'
+
 module AttrVault
   module Cryptor
     def self.encrypt(value, key)
@@ -24,7 +26,9 @@ module AttrVault
 
       expected_hmac = Encryption.hmac_digest(secret.signing_key, encrypted_payload)
       unless verify_signature(expected_hmac, hmac)
-        raise InvalidCiphertext, "Expected hmac #{expected_hmac} for this value; got #{hmac}"
+        raise InvalidCiphertext,
+          "Expected hmac #{Base64.encode64(expected_hmac)} for this value; " +
+          "got #{Base64.encode64(hmac)}"
       end
 
       iv, encrypted_message = encrypted_payload[0...16], encrypted_payload[16..-1]
