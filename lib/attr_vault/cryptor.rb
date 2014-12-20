@@ -7,14 +7,10 @@ module AttrVault
       return value if value.nil? || value.empty?
 
       secret = AttrVault::Secret.new(key)
-
-      encrypted_message, iv = Encryption.encrypt(
-                                                 key:     secret.encryption_key,
-                                                 message: value
-                                                )
-
+      encrypted_message, iv = Encryption.encrypt(key: secret.encryption_key,
+                                                 message: value)
       encrypted_payload = iv + encrypted_message
-      mac = OpenSSL::HMAC.digest('sha256', secret.signing_key, encrypted_payload)
+      mac = Encryption.hmac_digest(secret.signing_key, encrypted_payload)
       Sequel.blob(mac + encrypted_payload)
     end
 
@@ -22,10 +18,9 @@ module AttrVault
       return encrypted if encrypted.nil? || encrypted.empty?
 
       secret = AttrVault::Secret.new(key)
-
       hmac, encrypted_payload = encrypted[0...32], encrypted[32..-1]
-
       expected_hmac = Encryption.hmac_digest(secret.signing_key, encrypted_payload)
+
       unless verify_signature(expected_hmac, hmac)
         raise InvalidCiphertext,
           "Expected hmac #{Base64.encode64(expected_hmac)} for this value; " +
@@ -33,7 +28,6 @@ module AttrVault
       end
 
       iv, encrypted_message = encrypted_payload[0...16], encrypted_payload[16..-1]
-
       block_size = Encryption::AES_BLOCK_SIZE
       unless (encrypted_message.size % block_size).zero?
         raise InvalidCiphertext,
