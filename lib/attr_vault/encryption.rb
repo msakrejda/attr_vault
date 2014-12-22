@@ -63,8 +63,12 @@ module AttrVault
     # bytes - blob of bytes to sign
     #
     # Returns the HMAC signature as a string
-    def self.hmac_digest(key, bytes)
-      OpenSSL::HMAC.digest('sha256', key, bytes)
+    def self.hmac_digest(key, bytes, hex: false)
+      if hex
+        OpenSSL::HMAC.hexdigest('sha256', key, bytes)
+      else
+        OpenSSL::HMAC.digest('sha256', key, bytes)
+      end
     end
   end
 end
