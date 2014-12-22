@@ -20,9 +20,9 @@ conn.run <<-EOF
       key_id uuid,
       alt_key_id uuid,
       secret_encrypted bytea,
-      secret_digest text,
+      secret_digest bytea,
       other_encrypted bytea,
-      other_digest text,
+      other_digest bytea,
       not_secret text,
       other_not_secret text
     )

@@ -3,7 +3,6 @@ require 'attr_vault/keyring'
 require 'attr_vault/secret'
 require 'attr_vault/encryption'
 require 'attr_vault/cryptor'
-require 'digest/sha1'
 
 module AttrVault
   def self.included(base)
@@ -52,7 +51,8 @@ module AttrVault
           if value.nil?
             self[attr.digest_field] = nil
           else
-            self[attr.digest_field] = Digest::SHA1.hexdigest(value)
+            self[attr.digest_field] =
+              Sequel.blob(Encryption.hmac_digest(current_key.value, value))
           end
         end
       end
@@ -66,6 +66,10 @@ module AttrVault
     def vault_keyring(keyring_data, key_field: :key_id)
       @key_field = key_field.to_sym
       @keyring = Keyring.load(keyring_data)
+    end
+
+    def vault_digests(data)
+      @keyring.digests(data).map { |d| Sequel.blob(d) }
     end
 
     def vault_attr(name, opts={})

@@ -18,6 +18,10 @@ module AttrVault
       @created_at = created_at
     end
 
+    def digest(data)
+      AttrVault::Encryption::hmac_digest(value, data)
+    end
+
     def to_json(*args)
       { id: id, value: value, created_at: created_at }.to_json
     end
@@ -76,6 +80,10 @@ module AttrVault
         raise KeyringEmpty, "No keys in keyring"
       end
       k
+    end
+
+    def digests(data)
+      keys.map { |k| k.digest(data) }
     end
 
     def to_json
