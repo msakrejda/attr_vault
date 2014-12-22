@@ -3,7 +3,6 @@ require 'attr_vault/keyring'
 require 'attr_vault/secret'
 require 'attr_vault/encryption'
 require 'attr_vault/cryptor'
-require 'digest/sha1'
 
 module AttrVault
   def self.included(base)
@@ -52,7 +51,8 @@ module AttrVault
           if value.nil?
             self[attr.digest_field] = nil
           else
-            self[attr.digest_field] = Digest::SHA1.hexdigest(value)
+            self[attr.digest_field] =
+              Encryption.hmac_digest('AttrVault', value, hex: true)
           end
         end
       end

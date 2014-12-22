@@ -374,24 +374,28 @@ describe AttrVault do
       end
     }
 
+    def test_digest(data)
+      OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), 'AttrVault', data)
+    end
+
     it "records the sha1 of the plaintext value" do
       secret = 'snape kills dumbledore'
       s = item.create(secret: secret)
-      expect(s.secret_digest).to eq(Digest::SHA1.hexdigest(secret))
+      expect(s.secret_digest).to eq(test_digest(secret))
     end
 
     it "can record multiple digest fields" do
       secret = 'joffrey kills ned'
       other_secret = '"gomer pyle" lawrence kills himself'
       s = item.create(secret: secret, other: other_secret)
-      expect(s.secret_digest).to eq(Digest::SHA1.hexdigest(secret))
-      expect(s.other_digest).to eq(Digest::SHA1.hexdigest(other_secret))
+      expect(s.secret_digest).to eq(test_digest(secret))
+      expect(s.other_digest).to eq(test_digest(other_secret))
     end
 
     it "records the digest for an empty field" do
       s = item.create(secret: '', other: '')
-      expect(s.secret_digest).to eq(Digest::SHA1.hexdigest(''))
-      expect(s.other_digest).to eq(Digest::SHA1.hexdigest(''))
+      expect(s.secret_digest).to eq(test_digest(''))
+      expect(s.other_digest).to eq(test_digest(''))
     end
 
     it "records the digest of a nil field" do
