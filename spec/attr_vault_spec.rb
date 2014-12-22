@@ -56,6 +56,15 @@ describe AttrVault do
         expect(s.secret_encrypted).to be_nil
       end
 
+      it "sets fields to empty that were previously not empty" do
+        s = item.create(secret: 'joyce hatto')
+        s.reload
+        s.update(secret: '')
+        s.reload
+        expect(s.secret).to eq ''
+        expect(s.secret_encrypted).not_to be_nil
+      end
+
       it "stores the key id" do
         secret = 'it was professor plum with the wrench in the library'
         s = item.create(secret: secret)
