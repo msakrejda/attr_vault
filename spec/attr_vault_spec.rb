@@ -378,10 +378,15 @@ describe AttrVault do
         key.first.fetch(:value), data)
     end
 
+    def count_matching_digests(item_class, digest_field, secret)
+      item.where({digest_field => item_class.vault_digests(secret)}).count
+    end
+
     it "records the hmac of the plaintext value" do
       secret = 'snape kills dumbledore'
       s = item.create(secret: secret)
       expect(s.secret_digest).to eq(test_digest(key, secret))
+      expect(count_matching_digests(item, :secret_digest, secret)).to eq(1)
     end
 
     it "can record multiple digest fields" do
@@ -390,6 +395,15 @@ describe AttrVault do
       s = item.create(secret: secret, other: other_secret)
       expect(s.secret_digest).to eq(test_digest(key, secret))
       expect(s.other_digest).to eq(test_digest(key, other_secret))
+
+      # Check vault_digests feature matching against the database.
+      expect(count_matching_digests(item, :secret_digest, secret)).to eq(1)
+      expect(count_matching_digests(item, :other_digest, other_secret)).to eq(1)
+
+      # Negative tests for mismatched digesting.
+      expect(count_matching_digests(item, :secret_digest, other_secret))
+        .to eq(0)
+      expect(count_matching_digests(item, :other_digest, secret)).to eq(0)
     end
 
     it "records the digest for an empty field" do
