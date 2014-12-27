@@ -378,7 +378,7 @@ describe AttrVault do
         key.first.fetch(:value), data)
     end
 
-    it "records the sha1 of the plaintext value" do
+    it "records the hmac of the plaintext value" do
       secret = 'snape kills dumbledore'
       s = item.create(secret: secret)
       expect(s.secret_digest).to eq(test_digest(key, secret))
