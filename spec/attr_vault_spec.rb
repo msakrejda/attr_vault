@@ -355,12 +355,12 @@ describe AttrVault do
 
   context "with a digest field" do
     let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
-    let (:key) {
+    let(:key) {
       [{id: key_id,
         value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
         created_at: Time.now}]
     }
-    let(:item)   {
+    let(:item) {
       # the let form can't be evaluated inside the class definition
       # because Ruby scoping rules were written by H.P. Lovecraft, so
       # we create a local here to work around that
