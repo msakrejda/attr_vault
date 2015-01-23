@@ -103,6 +103,14 @@ module AttrVault
 
       define_method("#{name}=") do |value|
         @vault_dirty_attrs ||= {}
+        # if the attr is already dirty with the same value *or* it's
+        # being set to its current value, no need to do anything
+        if (@vault_dirty_attrs.has_key? name && @vault_dirty_attrs[name] == value) ||
+            # TODO: i don't know why this is failing
+            self[name] == value
+          return
+        end
+
         @vault_dirty_attrs[name] = value
         # ensure that Sequel knows that this is in fact dirty and must
         # be updated--otherwise, the object is never saved,

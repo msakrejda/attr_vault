@@ -129,6 +129,20 @@ describe AttrVault do
         s.secret = secret
         expect(s.secret).to eq secret
       end
+
+      it "avoids rewriting an encrypted value when it is not changing and the old version uses the current key" do
+        secret = 'the guy behind the grassy knoll'
+        s = item.create(secret: secret)
+        s.reload
+        old_val = s.secret_encrypted
+        s.update(secret: secret)
+        new_val = s.secret_encrypted
+        expect(new_val).to eq(old_val)
+      end
+
+      it "does rewrite the encrypted value when it's not changing but is using an older key" do
+        # TODO: write me
+      end
     end
   end
 
