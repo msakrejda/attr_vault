@@ -1,1 +1,1 @@
-[![Build Status](https://travis-ci.org/deafbybeheading/attr_vault.svg)](https://travis-ci.org/deafbybeheading/attr_vault)
+[![Build Status](https://travis-ci.org/uhoh-itsmaciek/attr_vault.svg)](https://travis-ci.org/uhoh-itsmaciek/attr_vault)

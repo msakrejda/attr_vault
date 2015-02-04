@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["m.sakrejda@gmail.com"]
   gem.description   = %q{Encryption at rest made easy}
   gem.summary       = %q{Sequel plugin for encryption at rest}
-  gem.homepage      = "https://github.com/deafbybeheading/attr_vault"
+  gem.homepage      = "https://github.com/uhoh-itsmaciek/attr_vault"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
