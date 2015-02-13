@@ -437,12 +437,16 @@ describe "stress test" do
     end
   }
 
+  def random_secret
+    [ nil, '', SecureRandom.base64(1 + rand(50)) ].sample
+  end
+
   it "works" do
     3.times.map do
       Thread.new do
         s = item.create(secret: 'that captain keen level in DOOM II')
         1000.times do
-          new_secret = [ nil, '', SecureRandom.base64(36) ].sample
+          new_secret = random_secret
           s.update(secret: new_secret)
           s.reload
           expect(s.secret).to eq new_secret
@@ -456,7 +460,7 @@ describe "stress test" do
     3.times.map do
       Thread.new do
         1000.times do
-          new_secret = [ nil, '', SecureRandom.base64(36) ].sample
+          new_secret = random_secret
           s.update(secret: new_secret)
           s.reload
           expect { s.secret }.not_to raise_error
