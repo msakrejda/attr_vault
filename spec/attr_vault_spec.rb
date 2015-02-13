@@ -440,9 +440,10 @@ describe "stress test" do
   it "works" do
     3.times.map do
       Thread.new do
+        s = item.create(secret: 'that captain keen level in DOOM II')
         1000.times do
           new_secret = SecureRandom.base64(36)
-          s = item.create(secret: new_secret)
+          s.update(secret: new_secret)
           s.reload
           expect(s.secret).to eq new_secret
         end
