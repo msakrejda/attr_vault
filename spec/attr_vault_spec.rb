@@ -419,3 +419,34 @@ describe AttrVault do
     end
   end
 end
+
+describe "stress test" do
+  let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
+  let(:key_data) {
+    [{
+      id: key_id,
+      value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+      created_at: Time.now }].to_json
+  }
+  let(:item)   {
+    k = key_data
+    Class.new(Sequel::Model(:items)) do
+      include AttrVault
+      vault_keyring k
+      vault_attr :secret
+    end
+  }
+
+  it "works" do
+    3.times.map do
+      Thread.new do
+        1000.times do
+          new_secret = SecureRandom.base64(36)
+          s = item.create(secret: new_secret)
+          s.reload
+          expect(s.secret).to eq new_secret
+        end
+      end
+    end.map(&:join)
+  end
+end
