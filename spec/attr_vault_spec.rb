@@ -442,7 +442,7 @@ describe "stress test" do
       Thread.new do
         s = item.create(secret: 'that captain keen level in DOOM II')
         1000.times do
-          new_secret = SecureRandom.base64(36)
+          new_secret = [ nil, '', SecureRandom.base64(36) ].sample
           s.update(secret: new_secret)
           s.reload
           expect(s.secret).to eq new_secret
