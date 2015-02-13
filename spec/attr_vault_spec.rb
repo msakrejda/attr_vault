@@ -450,4 +450,18 @@ describe "stress test" do
       end
     end.map(&:join)
   end
+
+  it "does not blow up even when used unsafely" do
+    s = item.create(secret: 'that captain keen level in DOOM II')
+    3.times.map do
+      Thread.new do
+        1000.times do
+          new_secret = [ nil, '', SecureRandom.base64(36) ].sample
+          s.update(secret: new_secret)
+          s.reload
+          expect { s.secret }.not_to raise_error
+        end
+      end
+    end.map(&:join)
+  end
 end
