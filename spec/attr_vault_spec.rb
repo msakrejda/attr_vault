@@ -441,8 +441,8 @@ describe "stress test" do
     3.times.map do
       Thread.new do
         s = item.create(secret: 'that captain keen level in DOOM II')
-        1000.times do
-          new_secret = [ nil, '', SecureRandom.base64(36) ].sample
+        1_000.times do
+          new_secret = [ nil, '', 36.times.map { (0..255).to_a.sample.chr }.join('') ].sample
           s.update(secret: new_secret)
           s.reload
           expect(s.secret).to eq new_secret
