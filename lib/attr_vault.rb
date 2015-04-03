@@ -5,60 +5,65 @@ require 'attr_vault/encryption'
 require 'attr_vault/cryptor'
 
 module AttrVault
+  PARANOID_MUTEX = Mutex.new
+
   def self.included(base)
     base.extend(ClassMethods)
     base.include(InstanceMethods)
   end
 
   module InstanceMethods
+
     def before_save
-      keyring = self.class.vault_keys
-      current_key = keyring.current_key
-      key_id = self[self.class.vault_key_field]
-      record_key = self.class.vault_keys.fetch(key_id) unless key_id.nil?
+      PARANOID_MUTEX.synchronize do
+        keyring = self.class.vault_keys
+        current_key = keyring.current_key
+        key_id = self[self.class.vault_key_field]
+        record_key = self.class.vault_keys.fetch(key_id) unless key_id.nil?
 
-      @vault_dirty_attrs ||= {}
-      if !record_key.nil? && current_key != record_key
-        # If the record key is not nil and not current, flag *all*
-        # attrs as dirty, since we want to rewrite them all in order
-        # to use the latest key. Note that when the record key is nil,
-        # we're dealing with a new record, so there are no existing
-        # vault attributes to rewrite. We only write these out when
-        # they're set explicitly in a new record, in which case they
-        # will be in the dirty attrs already and are handled below.
-        self.class.vault_attrs.each do |attr|
-          @vault_dirty_attrs[attr.name] ||= self.send(attr.name)
-        end
-      end
-      # If any attr has plaintext_source_field and the plaintext field
-      # has a value set, flag the attr as dirty using the plaintext
-      # source value, then nil out the plaintext field. Skip any
-      # attributes that are already dirty.
-      self.class.vault_attrs.reject { |attr| attr.plaintext_source_field.nil? }.each do |attr|
-        unless self[attr.plaintext_source_field].nil?
-          @vault_dirty_attrs[attr.name] ||= self[attr.plaintext_source_field]
-          self[attr.plaintext_source_field] = nil
-        end
-      end
-      self.class.vault_attrs.each do |attr|
-        next unless @vault_dirty_attrs.has_key? attr.name
-
-        value = @vault_dirty_attrs[attr.name]
-        encrypted = Cryptor.encrypt(value, current_key.value)
-
-        self[attr.encrypted_field] = encrypted
-        unless attr.digest_field.nil?
-          if value.nil?
-            self[attr.digest_field] = nil
-          else
-            self[attr.digest_field] =
-              Sequel.blob(Encryption.hmac_digest(current_key.value, value))
+        @vault_dirty_attrs ||= {}
+        if !record_key.nil? && current_key != record_key
+          # If the record key is not nil and not current, flag *all*
+          # attrs as dirty, since we want to rewrite them all in order
+          # to use the latest key. Note that when the record key is nil,
+          # we're dealing with a new record, so there are no existing
+          # vault attributes to rewrite. We only write these out when
+          # they're set explicitly in a new record, in which case they
+          # will be in the dirty attrs already and are handled below.
+          self.class.vault_attrs.each do |attr|
+            @vault_dirty_attrs[attr.name] ||= self.send(attr.name)
           end
         end
+        # If any attr has plaintext_source_field and the plaintext field
+        # has a value set, flag the attr as dirty using the plaintext
+        # source value, then nil out the plaintext field. Skip any
+        # attributes that are already dirty.
+        self.class.vault_attrs.reject { |attr| attr.plaintext_source_field.nil? }.each do |attr|
+          unless self[attr.plaintext_source_field].nil?
+            @vault_dirty_attrs[attr.name] ||= self[attr.plaintext_source_field]
+            self[attr.plaintext_source_field] = nil
+          end
+        end
+        self.class.vault_attrs.each do |attr|
+          next unless @vault_dirty_attrs.has_key? attr.name
+
+          value = @vault_dirty_attrs[attr.name]
+          encrypted = Cryptor.encrypt(value, current_key.value)
+
+          self[attr.encrypted_field] = encrypted
+          unless attr.digest_field.nil?
+            if value.nil?
+              self[attr.digest_field] = nil
+            else
+              self[attr.digest_field] =
+                Sequel.blob(Encryption.hmac_digest(current_key.value, value))
+            end
+          end
+        end
+        self[self.class.vault_key_field] = current_key.id
+        @vault_dirty_attrs = {}
+        super
       end
-      self[self.class.vault_key_field] = current_key.id
-      @vault_dirty_attrs = {}
-      super
     end
   end
 
