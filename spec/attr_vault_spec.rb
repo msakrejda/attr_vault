@@ -4,20 +4,19 @@ require 'json'
 describe AttrVault do
   context "with a single encrypted column" do
     let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
-    let(:key_data) {
-      [{
-        id: key_id,
-        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-        created_at: Time.now }].to_json
-    }
-    let(:item)   {
+    let(:key_data) do
+      [ { id: key_id,
+          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+          created_at: Time.now } ].to_json
+    end
+    let(:item) do
       k = key_data
       Class.new(Sequel::Model(:items)) do
         include AttrVault
         vault_keyring k
         vault_attr :secret
       end
-    }
+    end
 
     context "with a new object" do
       it "does not affect other attributes" do
@@ -130,13 +129,12 @@ describe AttrVault do
   end
 
   context "with multiple encrypted columns" do
-    let(:key_data) {
-      [{
-        id: '80a8571b-dc8a-44da-9b89-caee87e41ce2',
-        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-        created_at: Time.now }].to_json
-    }
-    let(:item)   {
+    let(:key_data) do
+      [ { id: '80a8571b-dc8a-44da-9b89-caee87e41ce2',
+          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+          created_at: Time.now } ].to_json
+    end
+    let(:item) do
       k = key_data
       Class.new(Sequel::Model(:items)) do
         include AttrVault
@@ -144,7 +142,7 @@ describe AttrVault do
         vault_attr :secret
         vault_attr :other
       end
-    }
+    end
 
     it "does not clobber other attributes" do
       secret1 = "superman is really mild-mannered reporter clark kent"
@@ -161,30 +159,20 @@ describe AttrVault do
 
   context "with items encrypted with an older key" do
     let(:key1_id)  { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
-    let(:key1)     {
-      {
-       id: key1_id,
-       value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-       created_at: Time.new(2014, 1, 1, 0, 0, 0)
-      }
-    }
-
+    let(:key1) do
+      { id: key1_id,
+        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+        created_at: Time.new(2014, 1, 1, 0, 0, 0) }
+    end
     let(:key2_id)  { '0a85781b-d8ac-4a4d-89b9-acee874e1ec2' }
-    let(:key2)     {
-      {
-       id: key2_id,
-       value: 'hUL1orBBRckZOuSuptRXYMV9lx5Qp54zwFUVwpwTpdk=',
-       created_at: Time.new(2014, 2, 1, 0, 0, 0)
-      }
-    }
-    let(:partial_keyring) {
-      [key1].to_json
-    }
-
-    let(:full_keyring) {
-      [key1, key2].to_json
-    }
-    let(:item1) {
+    let(:key2) do
+      { id: key2_id,
+        value: 'hUL1orBBRckZOuSuptRXYMV9lx5Qp54zwFUVwpwTpdk=',
+        created_at: Time.new(2014, 2, 1, 0, 0, 0) }
+    end
+    let(:partial_keyring) { [key1].to_json }
+    let(:full_keyring)    { [key1, key2].to_json }
+    let(:item1) do
       k = partial_keyring
       Class.new(Sequel::Model(:items)) do
         include AttrVault
@@ -192,8 +180,8 @@ describe AttrVault do
         vault_attr :secret
         vault_attr :other
       end
-    }
-    let(:item2) {
+    end
+    let(:item2) do
       k = full_keyring
       Class.new(Sequel::Model(:items)) do
         include AttrVault
@@ -201,7 +189,7 @@ describe AttrVault do
         vault_attr :secret
         vault_attr :other
       end
-    }
+    end
 
     it "rewrites the items using the current key" do
       secret1 = 'mrs. doubtfire is really a man'
@@ -243,13 +231,12 @@ describe AttrVault do
 
   context "with plaintext source fields" do
     let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
-    let(:key_data) {
-      [{
-        id: key_id,
-        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-        created_at: Time.now }].to_json
-    }
-    let(:item1) {
+    let(:key_data) do
+      [ { id: key_id,
+          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+          created_at: Time.now } ].to_json
+    end
+    let(:item1) do
       k = key_data
       Class.new(Sequel::Model(:items)) do
         include AttrVault
@@ -257,8 +244,8 @@ describe AttrVault do
         vault_attr :secret
         vault_attr :other
       end
-    }
-    let(:item2) {
+    end
+    let(:item2) do
       k = key_data
       Class.new(Sequel::Model(:items)) do
         include AttrVault
@@ -266,7 +253,7 @@ describe AttrVault do
         vault_attr :secret, plaintext_source_field: :not_secret
         vault_attr :other, plaintext_source_field: :other_not_secret
       end
-    }
+    end
 
     it "copies a plaintext field to an encrypted field when saving the object" do
       becomes_secret = 'the location of the lost continent of atlantis'
@@ -309,12 +296,11 @@ describe AttrVault do
   end
 
   context "with renamed database fields" do
-    let(:key_data) {
-      [{
-        id: '80a8571b-dc8a-44da-9b89-caee87e41ce2',
-        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-        created_at: Time.now }].to_json
-    }
+    let(:key_data) do
+      [ { id: '80a8571b-dc8a-44da-9b89-caee87e41ce2',
+          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+          created_at: Time.now } ].to_json
+    end
 
     it "supports renaming the encrypted field" do
       k = key_data
@@ -352,12 +338,12 @@ describe AttrVault do
 
   context "with a digest field" do
     let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
-    let(:key) {
-      [{id: key_id,
-        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-        created_at: Time.now}]
-    }
-    let(:item) {
+    let(:key) do
+      [ { id: key_id,
+          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+          created_at: Time.now } ]
+    end
+    let(:item) do
       k = key.to_json
       Class.new(Sequel::Model(:items)) do
         include AttrVault
@@ -365,7 +351,7 @@ describe AttrVault do
         vault_attr :secret, digest_field: :secret_digest
         vault_attr :other, digest_field: :other_digest
       end
-    }
+    end
 
     def test_digest(key, data)
       OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha256'),
@@ -416,20 +402,19 @@ end
 
 describe "stress test" do
   let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
-  let(:key_data) {
-    [{
-      id: key_id,
-      value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-      created_at: Time.now }].to_json
-  }
-  let(:item)   {
+  let(:key_data) do
+    [ { id: key_id,
+        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+        created_at: Time.now } ].to_json
+  end
+  let(:item) do
     k = key_data
     Class.new(Sequel::Model(:items)) do
       include AttrVault
       vault_keyring k
       vault_attr :secret
     end
-  }
+  end
 
   it "works" do
     3.times.map do
