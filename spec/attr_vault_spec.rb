@@ -11,9 +11,6 @@ describe AttrVault do
         created_at: Time.now }].to_json
     }
     let(:item)   {
-      # the let form can't be evaluated inside the class definition
-      # because Ruby scoping rules were written by H.P. Lovecraft, so
-      # we create a local here to work around that
       k = key_data
       Class.new(Sequel::Model(:items)) do
         include AttrVault
@@ -361,9 +358,6 @@ describe AttrVault do
         created_at: Time.now}]
     }
     let(:item) {
-      # the let form can't be evaluated inside the class definition
-      # because Ruby scoping rules were written by H.P. Lovecraft, so
-      # we create a local here to work around that
       k = key.to_json
       Class.new(Sequel::Model(:items)) do
         include AttrVault
