@@ -30,14 +30,14 @@ module AttrVault
           @vault_dirty_attrs[attr.name] ||= self.send(attr.name)
         end
       end
-      # If any attr has plaintext_source_field and the plaintext field
+      # If any attr has migrate_from_field and the plaintext field
       # has a value set, flag the attr as dirty using the plaintext
       # source value, then nil out the plaintext field. Skip any
       # attributes that are already dirty.
-      self.class.vault_attrs.reject { |attr| attr.plaintext_source_field.nil? }.each do |attr|
-        unless self[attr.plaintext_source_field].nil?
-          @vault_dirty_attrs[attr.name] ||= self[attr.plaintext_source_field]
-          self[attr.plaintext_source_field] = nil
+      self.class.vault_attrs.reject { |attr| attr.migrate_from_field.nil? }.each do |attr|
+        unless self[attr.migrate_from_field].nil?
+          @vault_dirty_attrs[attr.name] ||= self[attr.migrate_from_field]
+          self[attr.migrate_from_field] = nil
         end
       end
       self.class.vault_attrs.each do |attr|
@@ -83,8 +83,8 @@ module AttrVault
         end
         # if there is a plaintext source field, use that and ignore
         # the encrypted field
-        if !attr.plaintext_source_field.nil? && !self[attr.plaintext_source_field].nil?
-          return self[attr.plaintext_source_field]
+        if !attr.migrate_from_field.nil? && !self[attr.migrate_from_field].nil?
+          return self[attr.migrate_from_field]
         end
 
         keyring = self.class.vault_keys
@@ -128,15 +128,15 @@ module AttrVault
   end
 
   class VaultAttr
-    attr_reader :name, :encrypted_field, :plaintext_source_field, :digest_field
+    attr_reader :name, :encrypted_field, :migrate_from_field, :digest_field
 
     def initialize(name,
                    encrypted_field: "#{name}_encrypted",
-                   plaintext_source_field: nil,
+                   migrate_from_field: nil,
                    digest_field: nil)
       @name = name
       @encrypted_field = encrypted_field.to_sym
-      @plaintext_source_field = plaintext_source_field.to_sym unless plaintext_source_field.nil?
+      @migrate_from_field = migrate_from_field.to_sym unless migrate_from_field.nil?
       @digest_field = digest_field.to_sym unless digest_field.nil?
     end
   end

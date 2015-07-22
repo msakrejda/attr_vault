@@ -250,8 +250,8 @@ describe AttrVault do
       Class.new(Sequel::Model(:items)) do
         include AttrVault
         vault_keyring k
-        vault_attr :secret, plaintext_source_field: :not_secret
-        vault_attr :other, plaintext_source_field: :other_not_secret
+        vault_attr :secret, migrate_from_field: :not_secret
+        vault_attr :other, migrate_from_field: :other_not_secret
       end
     end
 
