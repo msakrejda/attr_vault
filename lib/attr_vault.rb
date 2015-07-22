@@ -128,15 +128,21 @@ module AttrVault
   end
 
   class VaultAttr
-    attr_reader :name, :encrypted_field, :migrate_from_field, :digest_field
+    attr_reader :name, :encrypted_field, :migrate_from_field,
+                :migrate_from_kind, :digest_field
 
     def initialize(name,
                    encrypted_field: "#{name}_encrypted",
                    migrate_from_field: nil,
+                   migrate_from_kind: :plaintext,
                    digest_field: nil)
       @name = name
       @encrypted_field = encrypted_field.to_sym
       @migrate_from_field = migrate_from_field.to_sym unless migrate_from_field.nil?
+      unless migrate_from_kind == :plaintext
+        raise ArgumentError, "Unknown migration kind: #{migrate_from_kind}"
+      end
+      @migrate_from_kind = migrate_from_kind
       @digest_field = digest_field.to_sym unless digest_field.nil?
     end
   end
