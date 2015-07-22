@@ -434,7 +434,7 @@ describe "stress test" do
   it "works" do
     3.times.map do
       Thread.new do
-        s = item.create(secret: 'that captain keen level in DOOM II')
+        s = item.create(secret: 'that Commander Keen level in DOOM II')
         1_000.times do
           new_secret = [ nil, '', 36.times.map { (0..255).to_a.sample.chr }.join('') ].sample
           s.update(secret: new_secret)
