@@ -16,6 +16,6 @@ Gem::Specification.new do |gem|
   gem.license       = "MIT"
 
   gem.add_development_dependency "rspec", '~> 3.0'
-  gem.add_development_dependency "pg", '~> 0'
+  gem.add_development_dependency "pg", '~> 0.18.3'
   gem.add_development_dependency "sequel", '~> 4.13'
 end
