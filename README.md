@@ -16,7 +16,7 @@ plaintext. Passwords do not fall in that category.
 ### Philosophy
 
 Sensitive data should be encrypted at rest. Data breaches are common,
-and while preventing the breach in the first place is preferrable,
+and while preventing the breach in the first place is preferable,
 defense in depth is a wise strategy.
 
 AttrVault encrypts your data in-application, so your encryption keys
@@ -32,7 +32,7 @@ encrypted with which key, making it easy to age out keys when needed
 
 ### Keyring
 
-Keys are managed through a Keyring--a short JSON document containing
+Keys are managed through a keyring--a short JSON document containing
 information about your encryption keys. The keyring must be a JSON
 array of objects with the fields `id`, `created_at`, and `value`. A
 keyring must have at least one key.
@@ -98,7 +98,7 @@ AttrVault needs some configuration in models as well. A
 expected format above). Then, for each field to be encrypted, include
 a `vault_attr` attribute with its desired attribute name. You can
 optionally specify the name of the encrypted column as well (by
-dfault, it will be the field name suffixed with `_encrypted`):
+default, it will be the field name suffixed with `_encrypted`):
 
 ```ruby
 class DiaryEntry < Sequel::Model
