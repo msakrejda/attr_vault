@@ -65,6 +65,9 @@ half for the HMAC.
 
 ### Usage
 
+N.B.: AttrVault depends on the `Sequel::Model#before_save` hook. If
+you use this in your model, be sure to call `super`!
+
 First generate a key as above.
 
 #### General schema changes
@@ -144,6 +147,7 @@ end
 
 To be continued...
 
+(storing digests is implemented, easy lookup by digest is not)
 
 #### Migrating unencrypted data
 
@@ -185,8 +189,27 @@ If this is true, the key with that id can be safely removed.
 For a large dataset, you may want to index the `key_id` column.
 
 
+### Contributing
+
+Patches are warmly welcome.
+
+To run tests locally, you'll need a `DATABASE_URL` environment
+variable pointing to a database AttrVault may use for testing. E.g.,
+
+```console
+$ createdb attr_vault_test
+$ DATABASE_URL=postgres:///attr_vault_test bundle exec rspec
+```
+
+Please follow the project's general coding style and open issues for
+any significant behavior or API changes.
+
+A pull request is understood to mean you are offering your code to the
+project under the MIT License.
+
+
 ### License
 
 Copyright (c) 2014-2015 AttrVault Contributors
 
-MIT License
+MIT License. See LICENSE for full text.
