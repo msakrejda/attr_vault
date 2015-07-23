@@ -3,8 +3,6 @@ require 'base64'
 module AttrVault
   module Cryptor
 
-    PARANOID = true
-
     def self.encrypt(value, key)
       return value if value.nil? || value.empty?
 
@@ -13,15 +11,6 @@ module AttrVault
                                                  message: value)
       encrypted_payload = iv + encrypted_message
       mac = Encryption.hmac_digest(secret.signing_key, encrypted_payload)
-
-      if PARANOID
-        mac_again = Encryption.hmac_digest(secret.signing_key, encrypted_payload)
-        unless verify_signature(mac, mac_again)
-          raise InvalidCiphertext, "Could not reliably calculate HMAC; " +
-            "got #{Base64.encode64(mac)} and #{Base64.encode64(mac_again)} " +
-            "for the same values"
-        end
-      end
 
       Sequel.blob(mac + encrypted_payload)
     end
