@@ -7,6 +7,6 @@ addons:
   postgresql: "9.3"
 env:
 rvm:
-  - 2.1.5
+  - 2.2.2
 notifications:
   email: false
