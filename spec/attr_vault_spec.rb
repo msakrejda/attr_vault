@@ -127,6 +127,14 @@ describe AttrVault do
         expect(s.secret).to be_nil
       end
 
+      it "avoids updating existing values when those do not change" do
+        the_secret = "Satoshi Nakamoto"
+        s = item.create
+        s.update(secret: the_secret)
+        s.secret = the_secret
+        expect(s.save_changes).to be_nil
+      end
+
       it "reads the correct value for a dirty field before the object is saved" do
         s = item.create
         secret = 'mcmurphy is lobotomized =('
