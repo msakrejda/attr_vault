@@ -98,6 +98,9 @@ module AttrVault
       end
 
       define_method("#{name}=") do |value|
+        old_value = self.public_send(name)
+        return if value == old_value
+
         @vault_dirty_attrs ||= {}
         @vault_dirty_attrs[name] = value
         # ensure that Sequel knows that this is in fact dirty and must
