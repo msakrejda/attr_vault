@@ -65,6 +65,14 @@ describe AttrVault do
         expect(s.secret_encrypted).not_to be_nil
       end
 
+      it "avoids updating existing values when those do not change" do
+        the_secret = "I'm not saying it was aliens..."
+        s = item.create(secret: the_secret)
+        s.reload
+        s.secret = the_secret
+        expect(s.save_changes).to be_nil
+      end
+
       it "stores the key id" do
         secret = 'it was professor plum with the wrench in the library'
         s = item.create(secret: secret)
