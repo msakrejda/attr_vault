@@ -35,7 +35,17 @@ encrypted with which key, making it easy to age out keys when needed
 Keys are managed through a keyring--a short JSON document containing
 information about your encryption keys. The keyring must be a JSON
 array of objects with the fields `id`, `created_at`, and `value`. A
-keyring must have at least one key.
+keyring must have at least one key. For example:
+
+```json
+[
+  {
+    "id": "1380e471-038e-459a-801d-10e7988ee6a3",
+    "created_at": "2016-02-04 01:55:00+00",
+    "value": "PV8+EHgJlHfsVVVstJHgEo+3OCSn4iJDzqJs55U650Q="
+  }
+]
+```
 
 The `id` can be numeric or a uuid. The `created_at` must be an
 ISO-8601 timestamp indicating the age of a key relative to the other
