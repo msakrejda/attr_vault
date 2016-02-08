@@ -12,21 +12,36 @@ require 'pg'
 require 'sequel'
 
 conn = Sequel.connect(ENV['DATABASE_URL'])
-conn.run 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'
-conn.run 'DROP TABLE IF EXISTS items'
 conn.run <<-EOF
-    CREATE TABLE items(
-      id serial primary key,
-      key_id uuid,
-      alt_key_id uuid,
-      secret_encrypted bytea,
-      secret_digest bytea,
-      other_encrypted bytea,
-      other_digest bytea,
-      not_secret text,
-      other_not_secret text
-    )
-  EOF
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS items_legacy;
+
+CREATE TABLE items(
+  id serial primary key,
+  key_id integer,
+  alt_key_id integer,
+  secret_encrypted bytea,
+  secret_digest bytea,
+  other_encrypted bytea,
+  other_digest bytea,
+  not_secret text,
+  other_not_secret text
+);
+
+CREATE TABLE items_legacy(
+  id serial primary key,
+  key_id uuid,
+  alt_key_id uuid,
+  secret_encrypted bytea,
+  secret_digest bytea,
+  other_encrypted bytea,
+  other_digest bytea,
+  not_secret text,
+  other_not_secret text
+);
+EOF
 
 RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
@@ -34,6 +49,7 @@ RSpec.configure do |config|
 
   config.before(:example) do
     conn.run 'TRUNCATE items'
+    conn.run 'TRUNCATE items_legacy'
   end
 
   # Run specs in random order to surface order dependencies. If you find an

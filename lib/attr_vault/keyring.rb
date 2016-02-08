@@ -9,8 +9,12 @@ module AttrVault
       if value.nil?
         raise InvalidKey, "key value required"
       end
-      if created_at.nil?
-        raise InvalidKey, "key created_at required"
+      begin
+        id = Integer(id)
+      rescue
+        if created_at.nil?
+          raise InvalidKey, "key created_at required"
+        end
       end
 
       @id = id
@@ -33,15 +37,20 @@ module AttrVault
     def self.load(keyring_data)
       keyring = Keyring.new
       begin
-        candidate_keys = JSON.parse(keyring_data)
-        unless candidate_keys.respond_to? :each
-          raise InvalidKeyring, "does not respond to each"
-        end
-        candidate_keys.each_with_index do |k|
-          created_at = unless k["created_at"].nil?
-                         Time.parse(k["created_at"])
-                       end
-          keyring.add_key(Key.new(k["id"], k["value"], created_at || Time.now))
+        candidate_keys = JSON.parse(keyring_data, symbolize_names: true)
+
+        case candidate_keys
+        when Array
+          candidate_keys.each do |k|
+            created_at = Time.parse(k[:created_at]) if k.has_key?(:created_at)
+            keyring.add_key(Key.new(k[:id], k[:value], created_at || Time.now))
+          end
+        when Hash
+          candidate_keys.each do |key_id, key|
+            keyring.add_key(Key.new(key_id, key))
+          end
+        else
+          raise InvalidKeyring, "Invalid JSON structure"
         end
       rescue StandardError => e
         raise InvalidKeyring, e.message
@@ -87,7 +96,14 @@ module AttrVault
     end
 
     def to_json
-      @keys.to_json
+      if @keys.all? { |k| k.created_at.nil? }
+        @keys.each_with_object({}) do |k,obj|
+          obj[k.id] = k.value
+        end.to_json
+      else
+        # Assume we are dealing with a legacy keyring
+        @keys.to_json
+      end
     end
   end
 end

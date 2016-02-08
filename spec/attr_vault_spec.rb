@@ -3,11 +3,10 @@ require 'json'
 
 describe AttrVault do
   context "with a single encrypted column" do
-    let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
+    let(:key_id)   { 1 }
     let(:key_data) do
       [ { id: key_id,
-          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-          created_at: Time.now } ].to_json
+          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8='} ].to_json
     end
     let(:item) do
       k = key_data
@@ -146,9 +145,8 @@ describe AttrVault do
 
   context "with multiple encrypted columns" do
     let(:key_data) do
-      [ { id: '80a8571b-dc8a-44da-9b89-caee87e41ce2',
-          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-          created_at: Time.now } ].to_json
+      [ { id: 1,
+          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=' } ].to_json
     end
     let(:item) do
       k = key_data
@@ -174,17 +172,15 @@ describe AttrVault do
   end
 
   context "with items encrypted with an older key" do
-    let(:key1_id)  { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
+    let(:key1_id)  { 1 }
     let(:key1) do
       { id: key1_id,
-        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-        created_at: Time.new(2014, 1, 1, 0, 0, 0) }
+        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=' }
     end
-    let(:key2_id)  { '0a85781b-d8ac-4a4d-89b9-acee874e1ec2' }
+    let(:key2_id)  { 2 }
     let(:key2) do
       { id: key2_id,
-        value: 'hUL1orBBRckZOuSuptRXYMV9lx5Qp54zwFUVwpwTpdk=',
-        created_at: Time.new(2014, 2, 1, 0, 0, 0) }
+        value: 'hUL1orBBRckZOuSuptRXYMV9lx5Qp54zwFUVwpwTpdk=' }
     end
     let(:partial_keyring) { [key1].to_json }
     let(:full_keyring)    { [key1, key2].to_json }
@@ -246,11 +242,10 @@ describe AttrVault do
   end
 
   context "with plaintext source fields" do
-    let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
+    let(:key_id)   { 1 }
     let(:key_data) do
       [ { id: key_id,
-          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-          created_at: Time.now } ].to_json
+          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=' } ].to_json
     end
     let(:item1) do
       k = key_data
@@ -313,9 +308,8 @@ describe AttrVault do
 
   context "with renamed database fields" do
     let(:key_data) do
-      [ { id: '80a8571b-dc8a-44da-9b89-caee87e41ce2',
-          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-          created_at: Time.now } ].to_json
+      [ { id: 1,
+          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=' } ].to_json
     end
 
     it "supports renaming the encrypted field" do
@@ -353,11 +347,10 @@ describe AttrVault do
   end
 
   context "with a digest field" do
-    let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
+    let(:key_id)   { 1 }
     let(:key) do
       [ { id: key_id,
-          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-          created_at: Time.now } ]
+          value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=' } ]
     end
     let(:item) do
       k = key.to_json
@@ -417,11 +410,10 @@ describe AttrVault do
 end
 
 describe "stress test" do
-  let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
+  let(:key_id)   { 1 }
   let(:key_data) do
     [ { id: key_id,
-        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-        created_at: Time.now } ].to_json
+        value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=' } ].to_json
   end
   let(:item) do
     k = key_data
