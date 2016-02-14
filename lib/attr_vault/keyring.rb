@@ -2,7 +2,7 @@ module AttrVault
   class Key
     attr_reader :id, :value, :created_at
 
-    def initialize(id, value, created_at)
+    def initialize(id, value, created_at=nil)
       if id.nil?
         raise InvalidKey, "key id required"
       end
@@ -47,7 +47,7 @@ module AttrVault
           end
         when Hash
           candidate_keys.each do |key_id, key|
-            keyring.add_key(Key.new(key_id, key))
+            keyring.add_key(Key.new(key_id.to_s, key))
           end
         else
           raise InvalidKeyring, "Invalid JSON structure"
