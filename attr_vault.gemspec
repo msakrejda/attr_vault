@@ -19,6 +19,4 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "sequel", '~> 4.13'
 
   gem.add_development_dependency "rspec", '~> 3.0'
-  gem.add_development_dependency "pg", '~> 0.18.3'
-  gem.add_development_dependency "sequel", '~> 4.13'
 end
