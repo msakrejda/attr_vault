@@ -7,20 +7,19 @@ module AttrVault
 
     describe ".load" do
       let(:key_data) {
-        [
-         { id: ::SecureRandom.uuid, value: ::SecureRandom.base64(32), created_at: Time.now },
-         { id: ::SecureRandom.uuid, value: ::SecureRandom.base64(32), created_at: Time.now }
-        ]
+        {
+          '1' => SecureRandom.base64(32),
+          '2' => SecureRandom.base64(32),
+        }
       }
 
       it "loads a valid keyring string" do
         keyring = Keyring.load(key_data.to_json)
         expect(keyring).to be_a Keyring
         expect(keyring.keys.count).to eq 2
-        (0..1).each do |i|
-          expect(keyring.keys[i].id).to eq key_data[i][:id]
-          expect(keyring.keys[i].value).to eq key_data[i][:value]
-          expect(keyring.keys[i].created_at).to be_within(60).of(key_data[i][:created_at])
+        key_data.keys.each do |key_id|
+          key = keyring.keys.find { |k| k.id == Integer(key_id) }
+          expect(key.value).to eq key_data[key_id]
         end
       end
 
@@ -29,19 +28,19 @@ module AttrVault
       end
 
       it "rejects unknown formats" do
-        keys = key_data.map do |k|
-          "<key id='#{k[:id]}' value='#{k[:value]}' created_at='#{k[:created_at]}'/>"
-        end
+        keys = key_data.map do |k,v|
+          "<key id='#{k}' value='#{v}'/>"
+        end.join(',')
         expect { Keyring.load("<keys>#{keys}</keys>") }.to raise_error(InvalidKeyring)
       end
 
-      it "rejects keys with missing ids" do
-        key_data[0].delete :id
+      it "rejects keys with missing values" do
+        key_data['1'] = nil
         expect { Keyring.load(key_data) }.to raise_error(InvalidKeyring)
       end
 
-      it "rejects keys with missing values" do
-        key_data[0].delete :value
+      it "rejects keys with empty values" do
+        key_data['1'] = ''
         expect { Keyring.load(key_data) }.to raise_error(InvalidKeyring)
       end
     end
@@ -49,8 +48,8 @@ module AttrVault
 
   describe "#keys" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
-    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(1, ::SecureRandom.base64(32)) }
+    let(:k2)      { Key.new(2, ::SecureRandom.base64(32)) }
 
     before do
       keyring.add_key(k1)
@@ -65,8 +64,8 @@ module AttrVault
 
   describe "#fetch" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
-    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(1, ::SecureRandom.base64(32)) }
+    let(:k2)      { Key.new(2, ::SecureRandom.base64(32)) }
 
     before do
       keyring.add_key(k1)
@@ -86,8 +85,8 @@ module AttrVault
 
   describe "#has_key?" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
-    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(1, ::SecureRandom.base64(32)) }
+    let(:k2)      { Key.new(2, ::SecureRandom.base64(32)) }
 
     before do
       keyring.add_key(k1)
@@ -100,13 +99,13 @@ module AttrVault
     end
 
     it "is false if no such key is present" do
-      expect(keyring.has_key?('867344d2-ac73-493b-9a9e-5fa688ba25ef')).to be false
+      expect(keyring.has_key?(5)).to be false
     end
   end
 
   describe "#add_key" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(1, ::SecureRandom.base64(32)) }
 
     it "adds keys" do
       expect(keyring.keys).to be_empty
@@ -117,8 +116,8 @@ module AttrVault
 
   describe "#drop_key" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
-    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(1, ::SecureRandom.base64(32)) }
+    let(:k2)      { Key.new(2, ::SecureRandom.base64(32)) }
 
     before do
       keyring.add_key(k1)
@@ -142,8 +141,8 @@ module AttrVault
 
   describe "#to_json" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
-    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(1, ::SecureRandom.base64(32)) }
+    let(:k2)      { Key.new(2, ::SecureRandom.base64(32)) }
 
     before do
       keyring.add_key(k1)
@@ -153,27 +152,22 @@ module AttrVault
     it "serializes the keyring to an expected format" do
       keyring_data = keyring.to_json
       reparsed = JSON.parse(keyring_data)
-      expect(reparsed[0]["id"]).to eq k1.id
-      expect(reparsed[0]["value"]).to eq k1.value
-      expect(reparsed[0]["created_at"]).to eq k1.created_at.to_s
-
-      expect(reparsed[1]["id"]).to eq k2.id
-      expect(reparsed[1]["value"]).to eq k2.value
-      expect(reparsed[1]["created_at"]).to eq k2.created_at.to_s
+      expect(reparsed[k1.id.to_s]).to eq k1.value
+      expect(reparsed[k2.id.to_s]).to eq k2.value
     end
   end
 
   describe "#current_key" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now - 3) }
-    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(1, ::SecureRandom.base64(32)) }
+    let(:k2)      { Key.new(2, ::SecureRandom.base64(32)) }
 
     before do
       keyring.add_key(k1)
       keyring.add_key(k2)
     end
 
-    it "returns the newest key" do
+    it "returns the key with the largest id" do
       expect(keyring.current_key).to eq k2
     end
 

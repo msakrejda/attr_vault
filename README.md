@@ -49,81 +49,6 @@ key with a larger id is assumed to be newer. The `value` is the actual
 bytes of the encryption key, used for encryption and verification: see
 below.
 
-#### Legacy keyrings
-
-A legacy keyring format is also supported for backwards
-compatibility. The keyring must be a JSON array of objects with the
-fields `id`, `created_at`, and `value`, and also must have at least
-one key:
-
-```json
-[
-  {
-    "id": "1380e471-038e-459a-801d-10e7988ee6a3",
-    "created_at": "2016-02-04 01:55:00+00",
-    "value": "PV8+EHgJlHfsVVVstJHgEo+3OCSn4iJDzqJs55U650Q="
-  }
-]
-```
-
-The `id` must be a uuid. The `created_at` must be an ISO-8601
-timestamp indicating the age of a key relative to the other keys. The
-`value` is the same structure as for a normal keyring.
-
-#### Legacy keyring migration
-
-You can migrate from legacy keyrings to the new format via the
-following process:
-
-Add a new key_id column:
-
-```ruby
-Sequel.migration do
-  change do
-    alter_table(:diary_entries) do
-      add_column :new_key_id, :integer
-    end
-  end
-end
-```
-
-Devise new numeric ids for all in-use keys (based on their
-`created_at` dates), and link the ids with sql like the following:
-
-```sql
-WITH key_map(new_key_id, old_key_id) AS (
-  VALUES (1, 'first-uuid'),
-         (2, 'next-uuid'),
-         (3, '...')
-)
-UPDATE
-  diary_entries
-SET
-  diary_entries.new_key_id = key_map.new_key_id
-FROM
-  key_map
-WHERE
-  diary_entries.key_id = key_map.old_key_id
-```
-
-Rename the new column to be used as the main key id and drop the old
-id column:
-
-```ruby
-Sequel.migration do
-  change do
-    alter_table(:diary_entries) do
-      rename_column :key_id, :old_key_id
-      rename_column :new_key_id, :key_id
-	  set_column_not_null :key_id
-      drop_column :old_key_id, :integer
-    end
-  end
-end
-```
-
-Then change the keyring in your application to use the new numeric
-ids.
 
 ### Encryption and verification
 
@@ -256,8 +181,7 @@ It's safe to use the same name as the name of the encrypted attribute.
 
 Because AttrVault uses a keyring, with access to multiple keys at
 once, key rotation is fairly straightforward: if you add a key to the
-keyring with a higher id than any other key (or more recent
-`created_at` for the legacy keyring format), that key will
+keyring with a higher id than any other key, that key will
 automatically be used for encryption. Any keys that are no longer in
 use can be removed from the keyring.
 

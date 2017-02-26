@@ -1,25 +1,19 @@
 module AttrVault
   class Key
-    attr_reader :id, :value, :created_at
+    attr_reader :id, :value
 
-    def initialize(id, value, created_at=nil)
-      if id.nil?
-        raise InvalidKey, "key id required"
-      end
-      if value.nil?
+    def initialize(id, value)
+      if value.nil? || value.empty?
         raise InvalidKey, "key value required"
       end
       begin
         id = Integer(id)
       rescue
-        if created_at.nil?
-          raise InvalidKey, "key created_at required"
-        end
+        raise InvalidKey, "key id must be an integer"
       end
 
       @id = id
       @value = value
-      @created_at = created_at
     end
 
     def digest(data)
@@ -27,7 +21,7 @@ module AttrVault
     end
 
     def to_json(*args)
-      { id: id, value: value, created_at: created_at }.to_json
+      { id: id, value: value }.to_json
     end
   end
 
@@ -39,13 +33,7 @@ module AttrVault
       begin
         candidate_keys = JSON.parse(keyring_data, symbolize_names: true)
 
-        case candidate_keys
-        when Array
-          candidate_keys.each do |k|
-            created_at = Time.parse(k[:created_at]) if k.has_key?(:created_at)
-            keyring.add_key(Key.new(k[:id], k[:value], created_at || Time.now))
-          end
-        when Hash
+        if candidate_keys.is_a?(Hash)
           candidate_keys.each do |key_id, key|
             keyring.add_key(Key.new(key_id.to_s, key))
           end
@@ -84,7 +72,7 @@ module AttrVault
     end
 
     def current_key
-      k = @keys.sort_by(&:created_at).last
+      k = @keys.sort_by(&:id).last
       if k.nil?
         raise KeyringEmpty, "No keys in keyring"
       end
@@ -96,14 +84,9 @@ module AttrVault
     end
 
     def to_json
-      if @keys.all? { |k| k.created_at.nil? }
-        @keys.each_with_object({}) do |k,obj|
-          obj[k.id] = k.value
-        end.to_json
-      else
-        # Assume we are dealing with a legacy keyring
-        @keys.to_json
-      end
+      @keys.each_with_object({}) do |k,obj|
+        obj[k.id] = k.value
+      end.to_json
     end
   end
 end
