@@ -217,6 +217,6 @@ project under the MIT License.
 
 ### License
 
-Copyright (c) 2014-2015 AttrVault Contributors
+Copyright (c) 2014-2017 AttrVault Contributors
 
 MIT License. See LICENSE for full text.
