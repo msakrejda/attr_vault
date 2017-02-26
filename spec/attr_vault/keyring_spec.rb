@@ -1,5 +1,6 @@
 require "spec_helper"
 require "json"
+require "securerandom"
 
 module AttrVault
   describe Keyring do
@@ -7,8 +8,8 @@ module AttrVault
     describe ".load" do
       let(:key_data) {
         [
-         { id: SecureRandom.uuid, value: SecureRandom.base64(32), created_at: Time.now },
-         { id: SecureRandom.uuid, value: SecureRandom.base64(32), created_at: Time.now }
+         { id: ::SecureRandom.uuid, value: ::SecureRandom.base64(32), created_at: Time.now },
+         { id: ::SecureRandom.uuid, value: ::SecureRandom.base64(32), created_at: Time.now }
         ]
       }
 
@@ -48,8 +49,8 @@ module AttrVault
 
   describe "#keys" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
-    let(:k2)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
 
     before do
       keyring.add_key(k1)
@@ -64,8 +65,8 @@ module AttrVault
 
   describe "#fetch" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
-    let(:k2)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
 
     before do
       keyring.add_key(k1)
@@ -85,8 +86,8 @@ module AttrVault
 
   describe "#has_key?" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
-    let(:k2)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
 
     before do
       keyring.add_key(k1)
@@ -105,7 +106,7 @@ module AttrVault
 
   describe "#add_key" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
 
     it "adds keys" do
       expect(keyring.keys).to be_empty
@@ -116,8 +117,8 @@ module AttrVault
 
   describe "#drop_key" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
-    let(:k2)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
 
     before do
       keyring.add_key(k1)
@@ -141,8 +142,8 @@ module AttrVault
 
   describe "#to_json" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
-    let(:k2)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
+    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
 
     before do
       keyring.add_key(k1)
@@ -164,8 +165,8 @@ module AttrVault
 
   describe "#current_key" do
     let(:keyring) { Keyring.new }
-    let(:k1)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now - 3) }
-    let(:k2)      { Key.new(SecureRandom.uuid, SecureRandom.base64(32), Time.now) }
+    let(:k1)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now - 3) }
+    let(:k2)      { Key.new(::SecureRandom.uuid, ::SecureRandom.base64(32), Time.now) }
 
     before do
       keyring.add_key(k1)
