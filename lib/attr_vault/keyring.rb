@@ -60,15 +60,15 @@ module AttrVault
            else
              id_or_key
            end
-      @keys.reject! { |k| k.id == id }
+      @keys.reject! { |k| k.id == id.downcase }
     end
 
     def fetch(id)
-      @keys.find { |k| k.id == id } or raise UnknownKey, id
+      @keys.find { |k| k.id == id.downcase } or raise UnknownKey, id
     end
 
     def has_key?(id)
-      !@keys.find { |k| k.id == id }.nil?
+      !@keys.find { |k| k.id == id.downcase }.nil?
     end
 
     def current_key

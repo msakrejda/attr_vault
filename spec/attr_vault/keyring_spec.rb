@@ -77,6 +77,11 @@ module AttrVault
       expect(keyring.fetch(k2.id)).to be k2
     end
 
+    it "finds the right key by its id without case issues" do
+      expect(keyring.fetch(k1.id.upcase)).to be k1
+      expect(keyring.fetch(k2.id.upcase)).to be k2
+    end
+
     it "raises for an unknown id" do
       expect { keyring.fetch('867344d2-ac73-493b-9a9e-5fa688ba25ef') }
         .to raise_error(UnknownKey)
