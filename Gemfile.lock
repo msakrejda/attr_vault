@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    attr_vault (2.0.0)
+    attr_vault (2.1.0)
       pg (>= 0.18)
       sequel (~> 5.0)
 
