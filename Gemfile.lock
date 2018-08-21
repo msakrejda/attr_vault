@@ -3,7 +3,7 @@ PATH
   specs:
     attr_vault (2.1.0)
       pg (>= 0.18)
-      sequel (~> 5.0)
+      sequel (>= 4.13, < 6.0)
 
 GEM
   remote: https://rubygems.org/
