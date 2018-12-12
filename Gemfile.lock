@@ -30,3 +30,9 @@ DEPENDENCIES
   pg (~> 0)
   rspec (~> 3.0)
   sequel (~> 4.13)
+
+RUBY VERSION
+   ruby 2.5.3p105
+
+BUNDLED WITH
+   1.17.1
