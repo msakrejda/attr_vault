@@ -1,5 +1,6 @@
 require "spec_helper"
 require "json"
+require "securerandom"
 
 module AttrVault
   describe Keyring do
@@ -7,8 +8,8 @@ module AttrVault
     describe ".load" do
       let(:key_data) {
         [
-         { id: SecureRandom.uuid, value: SecureRandom.base64(32), created_at: Time.now },
-         { id: SecureRandom.uuid, value: SecureRandom.base64(32), created_at: Time.now }
+         { id: SecureRandom.uuid, value: SecureRandom.base64(32), created_at: Time.now, new_id: 1 },
+         { id: SecureRandom.uuid, value: SecureRandom.base64(32), created_at: Time.now, new_id: 2 }
         ]
       }
 
@@ -20,6 +21,7 @@ module AttrVault
           expect(keyring.keys[i].id).to eq key_data[i][:id]
           expect(keyring.keys[i].value).to eq key_data[i][:value]
           expect(keyring.keys[i].created_at).to be_within(60).of(key_data[i][:created_at])
+          expect(keyring.keys[i].new_id).to eq key_data[i][:new_id]
         end
       end
 

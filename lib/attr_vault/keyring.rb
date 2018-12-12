@@ -1,8 +1,8 @@
 module AttrVault
   class Key
-    attr_reader :id, :value, :created_at
+    attr_reader :id, :value, :created_at, :new_id
 
-    def initialize(id, value, created_at)
+    def initialize(id, value, created_at, new_id=nil)
       if id.nil?
         raise InvalidKey, "key id required"
       end
@@ -16,6 +16,7 @@ module AttrVault
       @id = id
       @value = value
       @created_at = created_at
+      @new_id = new_id
     end
 
     def to_json(*args)
@@ -37,7 +38,7 @@ module AttrVault
           created_at = unless k["created_at"].nil?
                          Time.parse(k["created_at"])
                        end
-          keyring.add_key(Key.new(k["id"], k["value"], created_at || Time.now))
+          keyring.add_key(Key.new(k["id"], k["value"], created_at || Time.now, k["new_id"]))
         end
       rescue StandardError => e
         raise InvalidKeyring, e.message
