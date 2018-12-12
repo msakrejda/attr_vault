@@ -369,6 +369,36 @@ describe AttrVault do
     end
   end
 
+  context "with a new_key_field" do
+    let(:key_id)     { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
+    let(:new_key_id) { 1 }
+    let(:key_data)   {
+      [{
+         id: key_id,
+         new_id: new_key_id,
+         value: 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+         created_at: Time.now }].to_json
+    }
+    let(:item)       {
+      k = key_data
+      Class.new(Sequel::Model(:items)) do
+        include AttrVault
+        vault_keyring k, new_key_field: 'new_key_id'
+        vault_attr :secret
+      end
+    }
+
+    it "records the new key id in the given field" do
+      secret = "the enigma machine code"
+      s = item.create(secret: secret)
+      s.reload
+      expect(s.secret).to eq secret
+      expect(s.secret_encrypted).not_to eq secret
+      expect(s.key_id).to eq key_id
+      expect(s.new_key_id).to eq new_key_id
+    end
+  end
+
   context "with a digest field" do
     let(:key_id)   { '80a8571b-dc8a-44da-9b89-caee87e41ce2' }
     let(:key_data) {

@@ -19,6 +19,7 @@ conn.run <<-EOF
       id serial primary key,
       key_id uuid,
       alt_key_id uuid,
+      new_key_id integer,
       secret_encrypted bytea,
       secret_digest text,
       other_encrypted bytea,
