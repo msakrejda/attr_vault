@@ -383,7 +383,7 @@ describe AttrVault do
       k = key_data
       Class.new(Sequel::Model(:items)) do
         include AttrVault
-        vault_keyring k, new_key_field: 'new_key_id'
+        vault_keyring k, new_key_field: :new_key_id
         vault_attr :secret
       end
     }
