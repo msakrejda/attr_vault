@@ -1,8 +1,8 @@
 module AttrVault
   class Key
-    attr_reader :id, :value
+    attr_reader :id, :value, :old_id
 
-    def initialize(id, value)
+    def initialize(id, value, old_id=nil)
       if value.nil? || value.empty?
         raise InvalidKey, "key value required"
       end
@@ -14,6 +14,7 @@ module AttrVault
 
       @id = id
       @value = value
+      @old_id = old_id
     end
 
     def digest(data)
@@ -28,14 +29,19 @@ module AttrVault
   class Keyring
     attr_reader :keys
 
-    def self.load(keyring_data)
+    def self.load(keyring_data, old_key_id_mapping=nil)
       keyring = Keyring.new
       begin
         candidate_keys = JSON.parse(keyring_data, symbolize_names: true)
 
+        old_ids = JSON.parse(old_key_id_mapping || '{}')
+        unless old_ids.is_a?(Hash)
+          raise InvalidKeyring, "Invalid JSON structure for old key mapping"
+        end
+
         if candidate_keys.is_a?(Hash)
           candidate_keys.each do |key_id, key|
-            keyring.add_key(Key.new(key_id.to_s, key))
+            keyring.add_key(Key.new(key_id.to_s, key, old_ids[key_id.to_s]))
           end
         else
           raise InvalidKeyring, "Invalid JSON structure"

@@ -12,6 +12,12 @@ module AttrVault
           '2' => SecureRandom.base64(32),
         }
       }
+      let(:old_id_mapping) {
+        {
+          '1' => 'bd592a63-4581-4d4c-90ee-5f9a81ba678b',
+          '2' => '22073cdd-11f8-4734-8831-d9b5a6cfdff5',
+        }
+      }
 
       it "loads a valid keyring string" do
         keyring = Keyring.load(key_data.to_json)
@@ -20,6 +26,17 @@ module AttrVault
         key_data.keys.each do |key_id|
           key = keyring.keys.find { |k| k.id == Integer(key_id) }
           expect(key.value).to eq key_data[key_id]
+        end
+      end
+
+      it "supports loading an old key id mapping" do
+        keyring = Keyring.load(key_data.to_json, old_id_mapping.to_json)
+        expect(keyring).to be_a Keyring
+        expect(keyring.keys.count).to eq 2
+        key_data.keys.each do |key_id|
+          key = keyring.keys.find { |k| k.id == Integer(key_id) }
+          expect(key.value).to eq key_data[key_id]
+          expect(key.old_id).to eq old_id_mapping[key_id]
         end
       end
 

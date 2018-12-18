@@ -21,6 +21,7 @@ CREATE TABLE items(
   id serial primary key,
   key_id integer,
   alt_key_id integer,
+  old_key_id uuid,
   secret_encrypted bytea,
   secret_digest bytea,
   other_encrypted bytea,

@@ -58,15 +58,19 @@ module AttrVault
         end
       end
       self[self.class.vault_key_field] = current_key.id
+      if self.class.vault_old_key_field
+        self[self.class.vault_old_key_field] = current_key.old_id
+      end
       @vault_dirty_attrs = {}
       super
     end
   end
 
   module ClassMethods
-    def vault_keyring(keyring_data, key_field: :key_id)
+    def vault_keyring(keyring_data, key_field: :key_id, old_key_field: nil, old_key_id_mapping: nil)
       @key_field = key_field.to_sym
-      @keyring = Keyring.load(keyring_data)
+      @old_key_field = old_key_field&.to_sym
+      @keyring = Keyring.load(keyring_data, old_key_id_mapping)
     end
 
     def vault_digests(data)
@@ -124,6 +128,10 @@ module AttrVault
 
     def vault_key_field
       @key_field
+    end
+
+    def vault_old_key_field
+      @old_key_field
     end
 
     def vault_keys

@@ -363,6 +363,35 @@ describe AttrVault do
     end
   end
 
+  context "with an old id field and old id map" do
+    let(:key_data) do
+      { '1' => 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
+        '2' => 'hUL1orBBRckZOuSuptRXYMV9lx5Qp54zwFUVwpwTpdk=' }.to_json
+    end
+    let(:old_key_mapping) do
+      { '1' => '25c0c075-459d-4e0e-8b7a-c6cd9ac8dd07',
+        '2' => '616af68a-619c-4db9-86d3-459df6578deb' }.to_json
+    end
+
+    it "writes out the old key id as well as the new one" do
+      k = key_data
+      ok = old_key_mapping
+      item = Class.new(Sequel::Model(:items)) do
+        include AttrVault
+        vault_keyring k, old_key_field: 'old_key_id', old_key_id_mapping: ok
+        vault_attr :secret
+      end
+
+      secret = "the neighborhood watch alliance is up to no good"
+      s = item.create(secret: secret)
+      s.reload
+      expect(s.secret).to eq secret
+      expect(s.secret_encrypted).not_to eq secret
+      expect(s.key_id).to eq 2
+      expect(s.old_key_id).to eq '616af68a-619c-4db9-86d3-459df6578deb'
+    end
+  end
+
   context "with a digest field" do
     let(:key_id)   { 1 }
     let(:key) do
