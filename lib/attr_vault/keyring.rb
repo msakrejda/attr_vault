@@ -1,6 +1,10 @@
+# frozen_string_literal: true
+
 module AttrVault
   class Key
-    attr_reader :id, :value
+    attr_reader :id, :value, :aead
+
+    AES_256_GCM_PREFIX = 'AES-256-GCM:'
 
     def initialize(id, value)
       if value.nil? || value.empty?
@@ -13,7 +17,12 @@ module AttrVault
       end
 
       @id = id
-      @value = value
+      @aead = value.start_with?(AES_256_GCM_PREFIX)
+      @value = if @aead
+                 value[AES_256_GCM_PREFIX.length..-1]
+               else
+                 value
+               end
     end
 
     def digest(data)
@@ -21,7 +30,7 @@ module AttrVault
     end
 
     def to_json(*args)
-      { id: id, value: value }.to_json
+      { id: id, value: (aead ? AES_256_GCM_PREFIX : '') + value }.to_json
     end
   end
 

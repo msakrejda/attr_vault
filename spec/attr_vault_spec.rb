@@ -5,7 +5,7 @@ describe AttrVault do
   let(:key_ids) { [ 1, 2 ] }
   let(:key_values) do
     [ 'aFJDXs+798G7wgS/nap21LXIpm/Rrr39jIVo2m/cdj8=',
-      'hUL1orBBRckZOuSuptRXYMV9lx5Qp54zwFUVwpwTpdk=' ]
+      'AES-256-GCM:hUL1orBBRckZOuSuptRXYMV9lx5Qp54zwFUVwpwTpdk=' ]
   end
 
   def make_keyring(key_ids)

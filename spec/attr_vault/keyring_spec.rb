@@ -6,10 +6,11 @@ module AttrVault
   describe Keyring do
 
     describe ".load" do
+      let(:key2) { SecureRandom.base64(32) }
       let(:key_data) {
         {
           '1' => SecureRandom.base64(32),
-          '2' => SecureRandom.base64(32),
+          '2' => 'AES-256-GCM:' + key2,
         }
       }
 
@@ -19,7 +20,12 @@ module AttrVault
         expect(keyring.keys.count).to eq 2
         key_data.keys.each do |key_id|
           key = keyring.keys.find { |k| k.id == Integer(key_id) }
-          expect(key.value).to eq key_data[key_id]
+          case key_id
+          when '2'
+            expect(key.value).to eq key2
+          else
+            expect(key.value).to eq key_data[key_id]
+          end
         end
       end
 
@@ -49,7 +55,7 @@ module AttrVault
   describe "#keys" do
     let(:keyring) { Keyring.new }
     let(:k1)      { Key.new(1, ::SecureRandom.base64(32)) }
-    let(:k2)      { Key.new(2, ::SecureRandom.base64(32)) }
+    let(:k2)      { Key.new(2, 'AES-256-GCM:' + ::SecureRandom.base64(32)) }
 
     before do
       keyring.add_key(k1)
@@ -117,7 +123,7 @@ module AttrVault
   describe "#drop_key" do
     let(:keyring) { Keyring.new }
     let(:k1)      { Key.new(1, ::SecureRandom.base64(32)) }
-    let(:k2)      { Key.new(2, ::SecureRandom.base64(32)) }
+    let(:k2)      { Key.new(2, 'AES-256-GCM:' + ::SecureRandom.base64(32)) }
 
     before do
       keyring.add_key(k1)
@@ -142,7 +148,7 @@ module AttrVault
   describe "#to_json" do
     let(:keyring) { Keyring.new }
     let(:k1)      { Key.new(1, ::SecureRandom.base64(32)) }
-    let(:k2)      { Key.new(2, ::SecureRandom.base64(32)) }
+    let(:k2)      { Key.new(2, 'AES-256-GCM:' + ::SecureRandom.base64(32)) }
 
     before do
       keyring.add_key(k1)

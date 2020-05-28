@@ -40,7 +40,7 @@ least one key. For example:
 ```json
 {
   "1": "PV8+EHgJlHfsVVVstJHgEo+3OCSn4iJDzqJs55U650Q=",
-  "2": "0HyJ15am4haRsCyiFCxDdlKwl3G5yPNKTUbadpaIfPI="
+  "2": "AES-256-GCM:0HyJ15am4haRsCyiFCxDdlKwl3G5yPNKTUbadpaIfPI="
 }
 ```
 
