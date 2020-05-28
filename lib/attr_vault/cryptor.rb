@@ -6,7 +6,7 @@ module AttrVault
     def self.encrypt(value, key)
       return value if value.nil? || value.empty?
 
-      secret = AttrVault::Secret.new(key)
+      secret = AttrVault::Secret.new(key, aead: false)
       encrypted_message, iv = Encryption.encrypt(key: secret.encryption_key,
                                                  message: value)
       encrypted_payload = iv + encrypted_message
@@ -18,7 +18,7 @@ module AttrVault
     def self.decrypt(encrypted, key)
       return encrypted if encrypted.nil? || encrypted.empty?
 
-      secret = AttrVault::Secret.new(key)
+      secret = AttrVault::Secret.new(key, aead: false)
       hmac, encrypted_payload = encrypted[0...32], encrypted[32..-1]
       expected_hmac = Encryption.hmac_digest(secret.signing_key, encrypted_payload)
 

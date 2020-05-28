@@ -15,13 +15,15 @@ describe AttrVault::Secret do
 
   it "fails loudly when an invalid secret is provided" do
     secret = Base64.urlsafe_encode64("bad")
-    expect do
-      AttrVault::Secret.new(secret)
-    end.to raise_error(AttrVault::InvalidSecret)
+    [true, false].each do |aead|
+      expect do
+        AttrVault::Secret.new(secret, aead: aead)
+      end.to raise_error(AttrVault::InvalidSecret)
+    end
   end
 
   def resolves_input(input)
-    secret = AttrVault::Secret.new(input)
+    secret = AttrVault::Secret.new(input, aead: false)
 
     expect(
       secret.signing_key
@@ -30,5 +32,15 @@ describe AttrVault::Secret do
     expect(
       secret.encryption_key
     ).to eq("B"*16)
+
+    secret = AttrVault::Secret.new(input, aead: true)
+    
+    expect {
+      secret.signing_key
+     }.to raise_error(AttrVault::Error)
+
+    expect(
+      secret.encryption_key
+    ).to eq("A"*16 + "B"*16)
   end
 end

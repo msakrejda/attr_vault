@@ -1,8 +1,10 @@
+# frozen_string_literal: true
 require 'attr_vault/errors'
 require 'attr_vault/keyring'
 require 'attr_vault/secret'
 require 'attr_vault/encryption'
 require 'attr_vault/cryptor'
+require 'attr_vault/aes_256_gcm_cryptor'
 require 'json'
 
 module AttrVault
@@ -45,7 +47,11 @@ module AttrVault
         next unless @vault_dirty_attrs.has_key? attr.name
 
         value = @vault_dirty_attrs[attr.name]
-        encrypted = Cryptor.encrypt(value, current_key.value)
+        encrypted = if current_key.aead
+                      AES256GCMCryptor.encrypt(value, current_key.value)
+                    else
+                      Cryptor.encrypt(value, current_key.value)
+                    end
 
         self[attr.encrypted_field] = encrypted
         unless attr.digest_field.nil?
@@ -73,8 +79,8 @@ module AttrVault
       @keyring.digests(data).map { |d| Sequel.blob(d) }
     end
 
-    def vault_attr(name, opts={})
-      attr = VaultAttr.new(name, opts)
+    def vault_attr(name, **opts)
+      attr = VaultAttr.new(name, **opts)
       self.vault_attrs << attr
 
       define_method(name) do
@@ -99,7 +105,11 @@ module AttrVault
 
         encrypted_value = self[attr.encrypted_field]
         # TODO: cache decrypted value
-        Cryptor.decrypt(encrypted_value, record_key.value)
+        if record_key.aead
+          AES256GCMCryptor.decrypt(encrypted_value, record_key.value)
+        else
+          Cryptor.decrypt(encrypted_value, record_key.value)
+        end
       end
 
       define_method("#{name}=") do |value|
