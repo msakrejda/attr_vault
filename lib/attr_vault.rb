@@ -79,8 +79,8 @@ module AttrVault
       @keyring.digests(data).map { |d| Sequel.blob(d) }
     end
 
-    def vault_attr(name, opts={})
-      attr = VaultAttr.new(name, opts)
+    def vault_attr(name, **opts)
+      attr = VaultAttr.new(name, **opts)
       self.vault_attrs << attr
 
       define_method(name) do
