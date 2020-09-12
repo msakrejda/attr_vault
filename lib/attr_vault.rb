@@ -74,7 +74,7 @@ module AttrVault
     end
 
     def vault_attr(name, opts={})
-      attr = VaultAttr.new(name, opts)
+      attr = VaultAttr.new(name, **opts)
       self.vault_attrs << attr
 
       define_method(name) do
