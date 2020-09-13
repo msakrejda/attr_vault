@@ -5,6 +5,6 @@ dist: trusty
 sudo: false
 script: DATABASE_URL="postgres:///attr_vault" bundle exec rspec
 addons:
-  postgresql: "9.6"
+  postgresql: "10"
 notifications:
   email: false
