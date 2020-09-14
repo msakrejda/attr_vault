@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/uhoh-itsmaciek/attr_vault.svg)](https://travis-ci.org/uhoh-itsmaciek/attr_vault)
+![CI](https://github.com/uhoh-itsmaciek/attr_vault/workflows/CI/badge.svg)
 
 # AttrVault
 
