@@ -14,7 +14,7 @@ jobs:
       matrix:
         os: [ubuntu, macos, windows]
         ruby: [2.4, 2.5, 2.6, 2.7, debug, jruby]
-	pg: [10, 11, 12]
+        pg: [10, 11, 12]
     runs-on: ${{ matrix.os }}-latest
     continue-on-error: ${{ matrix.ruby == 'debug' }}
 
@@ -26,7 +26,7 @@ jobs:
     - uses: harmon758/postgresql-action@v1
       with:
         postgresql version: ${{ matrix.pg }}
-	postgresql db: attr_vault
+        postgresql db: attr_vault
 
     - run: bundle install
     - run: DATABASE_URL="postgres:///attr_vault" bundle exec rspec
