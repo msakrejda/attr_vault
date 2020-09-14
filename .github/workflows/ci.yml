@@ -26,6 +26,7 @@ jobs:
       with:
         postgres_image_tag: ${{ matrix.pg }}
         postgres_db: attr_vault
+        postgres_password: hunter2
 
     - run: bundle install
-    - run: DATABASE_URL="postgres://postgres@localhost/attr_vault" bundle exec rspec
+    - run: DATABASE_URL="postgres://postgres:hunter2@localhost/attr_vault" bundle exec rspec
