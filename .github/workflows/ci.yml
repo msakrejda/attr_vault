@@ -11,10 +11,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos, windows]
         ruby: [2.7]
         pg: [10, 11, 12]
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.ruby == 'debug' }}
 
     steps:
@@ -29,4 +28,4 @@ jobs:
         postgresql db: attr_vault
 
     - run: bundle install
-    - run: DATABASE_URL="postgres:///attr_vault" bundle exec rspec
+    - run: DATABASE_URL="postgres://localhost/attr_vault" bundle exec rspec
