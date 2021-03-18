@@ -171,6 +171,16 @@ module AttrVault
       expect(keyring.current_key).to eq k2
     end
 
+    it "returns the key with second largest id when use_nth_newest_key set to 2" do
+      ring = Keyring.new(2)
+      ring.add_key(k1)
+      expect(ring.current_key).to eq k1
+      ring.add_key(k2)
+      expect(ring.current_key).to eq k1
+      ring.add_key(Key.new(3, ::SecureRandom.base64(32)))
+      expect(ring.current_key).to eq k2
+    end
+
     it "raise if no keys are registered" do
       other_keyring = Keyring.new
       expect { other_keyring.current_key }.to raise_error(KeyringEmpty)

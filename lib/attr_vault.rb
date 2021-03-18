@@ -64,9 +64,9 @@ module AttrVault
   end
 
   module ClassMethods
-    def vault_keyring(keyring_data, key_field: :key_id)
+    def vault_keyring(keyring_data, key_field: :key_id, use_nth_newest_key: 1)
       @key_field = key_field.to_sym
-      @keyring = Keyring.load(keyring_data)
+      @keyring = Keyring.load(keyring_data, use_nth_newest_key)
     end
 
     def vault_digests(data)

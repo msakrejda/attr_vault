@@ -26,10 +26,10 @@ module AttrVault
   end
 
   class Keyring
-    attr_reader :keys
+    attr_reader :keys, :use_nth_newest_key
 
-    def self.load(keyring_data)
-      keyring = Keyring.new
+    def self.load(keyring_data, use_nth_newest_key = 1)
+      keyring = Keyring.new(use_nth_newest_key)
       begin
         candidate_keys = JSON.parse(keyring_data, symbolize_names: true)
 
@@ -46,8 +46,9 @@ module AttrVault
       keyring
     end
 
-    def initialize
+    def initialize(use_nth_newest_key = 1)
       @keys = []
+	  @use_nth_newest_key = use_nth_newest_key
     end
 
     def add_key(k)
@@ -72,7 +73,7 @@ module AttrVault
     end
 
     def current_key
-      k = @keys.sort_by(&:id).last
+      k = @keys.max_by(@use_nth_newest_key, &:id).last
       if k.nil?
         raise KeyringEmpty, "No keys in keyring"
       end
